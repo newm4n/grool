@@ -1,0 +1,2 @@
+# grool
+Golang Rule Engine
