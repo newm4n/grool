@@ -43,7 +43,7 @@ func TestParser(t *testing.T) {
 		lexer := parser.NewgroolLexer(is)
 		stream := antlr.NewCommonTokenStream(lexer, antlr.TokenDefaultChannel)
 
-		listener := &GroolParserListener{}
+		listener := NewGroolParserListener()
 
 		parser := parser.NewgroolParser(stream)
 		parser.BuildParseTrees = true

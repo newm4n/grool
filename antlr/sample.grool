@@ -6,7 +6,7 @@
    As well as this
 */
 
-rule SomeRuleName "Some rule description." {
+rule RuleOne "Some rule description." {
     when
         (someContext.attributeA.attributeA == 123 &&
         someContext.attributeA.attributeB > 123 ||
@@ -32,7 +32,7 @@ rule SomeRuleName "Some rule description." {
 }
 
 
-rule SomeRuleName "Some rule description." {
+rule RuleTwo "Some rule description." {
     when
         (someContext.attributeA.attributeA == 123 &&
         someContext.attributeA.attributeB > 123 ||

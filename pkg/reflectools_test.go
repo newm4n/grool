@@ -1,7 +1,7 @@
 package pkg
 
 import (
-	"reflect"
+	"fmt"
 	"testing"
 	"time"
 )
@@ -13,6 +13,43 @@ type TestObject struct {
 	D bool
 	E time.Time
 	F *TestSubObject
+	G int8
+	H int16
+	I int32
+	J int64
+	K uint
+	L uint8
+	M uint16
+	N uint32
+	O uint64
+	P float32
+	Q []int
+	R map[int]string
+	S TestSubObjectNoPtr
+}
+
+func (to *TestObject) FunctionA(arg1 string, arg2 string) (string, error) {
+	return fmt.Sprintf("A call Arg1 : %s and Arg2 : %s", arg1, arg2), nil
+}
+
+func (to *TestObject) FunctionB(arg1, arg2 string) (string, error) {
+	return fmt.Sprintf("B call Arg1 : %s and Arg2 : %s", arg1, arg2), nil
+}
+
+func (to *TestObject) FunctionC(arg1 int, arg2 string) (string, error) {
+	return fmt.Sprintf("C call Arg1 : %d and Arg2 : %s", arg1, arg2), nil
+}
+
+func (to TestObject) FunctionD(arg1 string, arg2 string) (string, error) {
+	return fmt.Sprintf("A call Arg1 : %s and Arg2 : %s", arg1, arg2), nil
+}
+
+func (to TestObject) FunctionE(arg1, arg2 string) (string, error) {
+	return fmt.Sprintf("B call Arg1 : %s and Arg2 : %s", arg1, arg2), nil
+}
+
+func (to TestObject) FunctionF(arg1 int, arg2 string) (string, error) {
+	return fmt.Sprintf("C call Arg1 : %d and Arg2 : %s", arg1, arg2), nil
 }
 
 type TestSubObject struct {
@@ -36,118 +73,146 @@ type TestSubObjectNoPtr struct {
 	C float64
 }
 
-func TestGetMemberVariables(t *testing.T) {
-	testObject := &TestObject{
-		A: "string data",
-		B: 123,
-		C: 456.789,
-		D: true,
-		E: time.Date(2019, time.January, 1, 1, 1, 1, 0, time.Local),
-		F: &TestSubObject{
-			A: "string",
-			B: 123,
-			C: 456.789,
-		},
-	}
-
-	vars, err := GetMemberVariables(testObject)
+func TestGetFunctionList(t *testing.T) {
+	to := &TestObject{}
+	functions, err := GetFunctionList(to)
 	if err != nil {
-		t.Error(err)
+		t.Error("Got error")
+		t.FailNow()
+	}
+	if len(functions) != 6 {
+		t.Errorf("Got %d functions", len(functions))
+		t.FailNow()
+	}
+	if functions[0] != "FunctionA" {
+		t.Errorf("1st function name %s", functions[0])
+		t.FailNow()
+	}
+	if functions[1] != "FunctionB" {
+		t.Errorf("2nd function name %s", functions[1])
 		t.FailNow()
 	}
 
-	if len(vars) != 6 {
-		t.Error("Invalid member variable count")
-		t.Fail()
+	to2 := TestObject{}
+	functions, err = GetFunctionList(to2)
+	if err != nil {
+		t.Error("Got error")
+		t.FailNow()
 	}
-
-	if vars[0].Name() != "A" {
-		t.Errorf("Expect vars[0] = a but %s", vars[0].Name())
-		t.Fail()
+	if len(functions) != 3 {
+		t.Errorf("Got %d functions", len(functions))
+		t.FailNow()
 	}
-	if vars[0].Type() != "string" {
-		t.Errorf("Expect vars[0] type = string but %s", vars[0].Type())
-		t.Fail()
+	if functions[0] != "FunctionD" {
+		t.Errorf("1st function name %s", functions[0])
+		t.FailNow()
 	}
-	if vars[0].GetValue().(string) != "string data" {
-		t.Errorf("Expect vars[0] type = string but %s", vars[0].Type())
-		t.Fail()
+	if functions[1] != "FunctionE" {
+		t.Errorf("2nd function name %s", functions[1])
+		t.FailNow()
 	}
-
-	if vars[1].Name() != "B" {
-		t.Errorf("Expect vars[1] = b but %s", vars[1].Name())
-		t.Fail()
-	}
-	if vars[1].Type() != "int" {
-		t.Errorf("Expect vars[1] type = int but %s", vars[1].Type())
-		t.Fail()
-	}
-	if vars[1].GetValue().(int) != 123 {
-		t.Errorf("Expect vars[1] type = string but %s", vars[1].Type())
-		t.Fail()
-	}
-
-	if vars[2].Name() != "C" {
-		t.Errorf("Expect vars[2] = c but %s", vars[2].Name())
-		t.Fail()
-	}
-	if vars[2].Type() != "float64" {
-		t.Errorf("Expect vars[2] type = float64 but %s", vars[2].Type())
-		t.Fail()
-	}
-	if vars[3].Name() != "D" {
-		t.Errorf("Expect vars[3] = d but %s", vars[3].Name())
-		t.Fail()
-	}
-	if vars[3].Type() != "bool" {
-		t.Errorf("Expect vars[3] type = bool but %s", vars[3].Type())
-		t.Fail()
-	}
-	if vars[4].Name() != "E" {
-		t.Errorf("Expect vars[4] = e but %s", vars[4].Name())
-		t.Fail()
-	}
-	if vars[4].Type() != "time.Time" {
-		t.Errorf("Expect vars[4] type = time.Time but %s", vars[4].Type())
-		t.Fail()
-	}
-	if vars[5].Name() != "F" {
-		t.Errorf("Expect vars[5] = f but %s", vars[5].Name())
-		t.Fail()
-	}
-	if vars[5].Type() != "*pkg.TestSubObject" {
-		t.Errorf("Expect vars[5] type = *pkg.TestSubObject but %s", vars[5].Type())
-		t.Fail()
-	}
-
-	tso := vars[5].GetValue().(*TestSubObject)
-	if reflect.ValueOf(tso).Type().String() != reflect.ValueOf(testObject.F).Type().String() {
-		t.Errorf(reflect.ValueOf(tso).Type().String(), "!=", reflect.ValueOf(testObject.F).Type().String())
-		t.Fail()
-	}
-
-	if tso.A != testObject.F.A {
-		t.Errorf("%v != %v", tso.A, testObject.F.A)
-		t.Fail()
-	}
-	if tso.B != testObject.F.B {
-		t.Errorf("%v != %v", tso.B, testObject.F.B)
-		t.Fail()
-	}
-	if tso.C != testObject.F.C {
-		t.Errorf("%v != %v", tso.C, testObject.F.C)
-		t.Fail()
-	}
-
-	if tso != testObject.F {
-		t.Errorf("Expect vars[5] object equals TestSubObject but its not")
-		t.Fail()
-	}
-
 }
 
-func TestGetMemberPtrVariables(t *testing.T) {
-	testObject := TestObjectNoPtr{
+func TestGetFunctionParameterTypes(t *testing.T) {
+	to := &TestObject{}
+	types, err := GetFunctionParameterTypes(to, "FunctionC")
+	if err != nil {
+		t.Errorf("Error : %v", err)
+		t.FailNow()
+	}
+	if len(types) != 2 {
+		t.Errorf("Invalid argument count : %d", len(types))
+		for idx, typ := range types {
+			if typ.Kind().String() == "ptr" {
+				t.Errorf("#%d : %s", idx, typ.Elem().Name())
+			} else {
+				t.Errorf("#%d : %s", idx, typ.Kind().String())
+			}
+		}
+		t.FailNow()
+	}
+	if types[0].Kind().String() != "int" || types[1].Kind().String() != "string" {
+		t.Errorf("Invalid argument type kind")
+		t.FailNow()
+	}
+}
+
+func TestGetFunctionReturnTypes(t *testing.T) {
+	to := &TestObject{}
+	types, err := GetFunctionReturnTypes(to, "FunctionC")
+	if err != nil {
+		t.Errorf("Error : %v", err)
+		t.FailNow()
+	}
+	if len(types) != 2 {
+		t.Errorf("Invalid return count : %d", len(types))
+		for idx, typ := range types {
+			if typ.Kind().String() == "ptr" {
+				t.Errorf("#%d : %s", idx, typ.Elem().Name())
+			} else {
+				t.Errorf("#%d : %s", idx, typ.Kind().String())
+			}
+		}
+		t.FailNow()
+	}
+	if types[0].Kind().String() != "string" || types[1].Kind().String() != "interface" {
+		t.Errorf("Invalid argument type kind")
+		for idx, typ := range types {
+			if typ.Kind().String() == "ptr" {
+				t.Errorf("#%d : %s", idx, typ.Elem().Name())
+			} else {
+				t.Errorf("#%d : %s", idx, typ.Kind().String())
+			}
+		}
+		t.FailNow()
+	}
+}
+
+func TestInvokeFunction(t *testing.T) {
+	to := &TestObject{}
+	param := make([]interface{}, 2)
+	param[0] = 10
+	param[1] = "Ten"
+	rets, err := InvokeFunction(to, "FunctionC", param)
+	if err != nil {
+		t.Errorf("Got error : %v", err)
+	} else {
+		if len(rets) != 2 {
+			t.Errorf("Invalid ret outs : %d", len(rets))
+		}
+		if rets[0].(string) != "C call Arg1 : 10 and Arg2 : Ten" {
+			t.Errorf("Invalid turn : %s", rets[0].(string))
+		}
+		if rets[1] != nil {
+			t.Errorf("2nd return should be nil")
+		}
+	}
+}
+
+func TestGetAttributeList(t *testing.T) {
+	to := &TestObject{}
+	names, err := GetAttributeList(to)
+	if err != nil {
+		t.Errorf("Got error : %v", err)
+		t.FailNow()
+	}
+	if len(names) != 19 {
+		t.Errorf("Invalid field count : %d", len(names))
+		t.FailNow()
+	}
+	check := []string{
+		"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S",
+	}
+	for i := 0; i < len(check); i++ {
+		if names[i] != check[i] {
+			t.Errorf("Attribute #%d, expect %s, but actual %s", i, check[i], names[i])
+			t.FailNow()
+		}
+	}
+}
+
+func TestGetAttributeValue(t *testing.T) {
+	to := TestObjectNoPtr{
 		A: "string data",
 		B: 123,
 		C: 456.789,
@@ -159,99 +224,55 @@ func TestGetMemberPtrVariables(t *testing.T) {
 			C: 456.789,
 		},
 	}
-
-	vars, err := GetMemberVariables(testObject)
+	itv, err := GetAttributeValue(to, "A")
 	if err != nil {
-		t.Error(err)
+		t.Errorf("Got error %v", err)
+		t.FailNow()
+	}
+	if itv.(string) != "string data" {
+		t.FailNow()
+	}
+}
+
+func TestSetAttributeValue(t *testing.T) {
+	testObject := &TestObject{
+		A: "string data",
+		B: 123,
+		C: 456.789,
+		D: true,
+	}
+	err := SetAttributeValue(testObject, "A", "strong data")
+	if err != nil {
+		t.Errorf("Got error %v", err)
+		t.FailNow()
+	}
+	err = SetAttributeValue(testObject, "B", 456)
+	if err != nil {
+		t.Errorf("Got error %v", err)
+		t.FailNow()
+	}
+	err = SetAttributeValue(testObject, "B", 456.123)
+	if err == nil {
+		t.Errorf("Should not be able to set with different type")
+		t.FailNow()
+	}
+	if testObject.A != "strong data" && testObject.B != 456 {
+		t.Errorf("Setting string fail")
 		t.FailNow()
 	}
 
-	if len(vars) != 6 {
-		t.Error("Invalid member variable count")
-		t.Fail()
+	tso := &TestSubObject{
+		A: "TSO",
+		B: 2019,
+		C: 2019.6,
 	}
-
-	if vars[0].Name() != "A" {
-		t.Errorf("Expect vars[0] = a but %s", vars[0].Name())
-		t.Fail()
+	err = SetAttributeValue(testObject, "F", tso)
+	if err != nil {
+		t.Errorf("Should not be able to set with different type : %v", err)
+		t.FailNow()
 	}
-	if vars[0].Type() != "string" {
-		t.Errorf("Expect vars[0] type = string but %s", vars[0].Type())
-		t.Fail()
+	if testObject.F.A != "TSO" && testObject.F.B != 2019 {
+		t.Errorf("Setting object fail")
+		t.FailNow()
 	}
-	if vars[0].GetValue().(string) != "string data" {
-		t.Errorf("Expect vars[0] type = string but %s", vars[0].Type())
-		t.Fail()
-	}
-
-	if vars[1].Name() != "B" {
-		t.Errorf("Expect vars[1] = b but %s", vars[1].Name())
-		t.Fail()
-	}
-	if vars[1].Type() != "int" {
-		t.Errorf("Expect vars[1] type = int but %s", vars[1].Type())
-		t.Fail()
-	}
-	if vars[1].GetValue().(int) != 123 {
-		t.Errorf("Expect vars[1] type = string but %s", vars[1].Type())
-		t.Fail()
-	}
-
-	if vars[2].Name() != "C" {
-		t.Errorf("Expect vars[2] = c but %s", vars[2].Name())
-		t.Fail()
-	}
-	if vars[2].Type() != "float64" {
-		t.Errorf("Expect vars[2] type = float64 but %s", vars[2].Type())
-		t.Fail()
-	}
-	if vars[3].Name() != "D" {
-		t.Errorf("Expect vars[3] = d but %s", vars[3].Name())
-		t.Fail()
-	}
-	if vars[3].Type() != "bool" {
-		t.Errorf("Expect vars[3] type = bool but %s", vars[3].Type())
-		t.Fail()
-	}
-	if vars[4].Name() != "E" {
-		t.Errorf("Expect vars[4] = e but %s", vars[4].Name())
-		t.Fail()
-	}
-	if vars[4].Type() != "time.Time" {
-		t.Errorf("Expect vars[4] type = time.Time but %s", vars[4].Type())
-		t.Fail()
-	}
-	if vars[5].Name() != "F" {
-		t.Errorf("Expect vars[5] = f but %s", vars[5].Name())
-		t.Fail()
-	}
-	if vars[5].Type() != "*pkg.TestSubObject" {
-		t.Errorf("Expect vars[5] type = *pkg.TestSubObject but %s", vars[5].Type())
-		t.Fail()
-	}
-
-	tso := vars[5].GetValue().(TestSubObjectNoPtr)
-	if reflect.ValueOf(tso).Type().String() != reflect.ValueOf(testObject.F).Type().String() {
-		t.Errorf(reflect.ValueOf(tso).Type().String(), "!=", reflect.ValueOf(testObject.F).Type().String())
-		t.Fail()
-	}
-
-	if tso.A != testObject.F.A {
-		t.Errorf("%v != %v", tso.A, testObject.F.A)
-		t.Fail()
-	}
-	if tso.B != testObject.F.B {
-		t.Errorf("%v != %v", tso.B, testObject.F.B)
-		t.Fail()
-	}
-	if tso.C != testObject.F.C {
-		t.Errorf("%v != %v", tso.C, testObject.F.C)
-		t.Fail()
-	}
-
-	if tso != testObject.F {
-		t.Errorf("Expect vars[5] object equals TestSubObject but its not")
-		t.Fail()
-	}
-
 }
