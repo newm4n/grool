@@ -130,4 +130,8 @@ fabric.properties
 # Ignore all local history of files
 .history
 
+### ANTLR ###
+.antlr
+.antlr/
+
 # End of https://www.gitignore.io/api/go,git,intellij,visualstudiocode
