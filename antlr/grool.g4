@@ -8,7 +8,11 @@ root
     ;
 
 ruleEntry
-    : RULE ruleName ruleDescription? LR_BRACE whenScope thenScope RR_BRACE
+    : RULE ruleName ruleDescription? salience? LR_BRACE whenScope thenScope RR_BRACE
+    ;
+
+salience
+    : SALIENCE decimalLiteral
     ;
 
 ruleName
@@ -33,6 +37,7 @@ assignExpressions
 
 assignExpression
     : assignment SEMICOLON
+    | functionCall SEMICOLON
     ;
 
 assignment
@@ -90,12 +95,16 @@ constant
     | decimalLiteral
     | '-' decimalLiteral
     | booleanLiteral
-    | REAL_LITERAL
+    | realLiteral
     | NOT? NULL_LITERAL
     ;
 
 decimalLiteral
-    : DECIMAL_LITERAL
+    : MINUS? DECIMAL_LITERAL
+    ;
+
+realLiteral
+    : MINUS? REAL_LITERAL
     ;
 
 stringLiteral
@@ -145,6 +154,7 @@ TRUE                        : T R U E ;
 FALSE                       : F A L S E ;
 NULL_LITERAL                : N U L L ;
 NOT                         : N O T ;
+SALIENCE                    : S A L I E N C E ;
 
 SIMPLENAME                  : [a-zA-Z] [a-zA-Z0-9]* ;
 DOTTEDNAME                  : SIMPLENAME ( DOT SIMPLENAME )+ ;

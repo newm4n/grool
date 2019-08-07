@@ -7,6 +7,7 @@ import (
 	"github.com/newm4n/grool/antlr/parser"
 	"github.com/newm4n/grool/model"
 	"github.com/sirupsen/logrus"
+	"reflect"
 	"strconv"
 	"strings"
 )
@@ -45,10 +46,10 @@ func (s *GroolParserListener) VisitTerminal(node antlr.TerminalNode) {}
 // VisitErrorNode is called when an error node is visited.
 func (s *GroolParserListener) VisitErrorNode(node antlr.ErrorNode) {}
 
-// EnterEveryRule is called when any rule is entered.
+// EnterEveryRule is called when any engine is entered.
 func (s *GroolParserListener) EnterEveryRule(ctx antlr.ParserRuleContext) {}
 
-// ExitEveryRule is called when any rule is exited.
+// ExitEveryRule is called when any engine is exited.
 func (s *GroolParserListener) ExitEveryRule(ctx antlr.ParserRuleContext) {}
 
 // EnterRoot is called when production root is entered.
@@ -74,12 +75,12 @@ func (s *GroolParserListener) ExitRuleEntry(ctx *parser.RuleEntryContext) {
 	if len(s.ParseErrors) > 0 {
 		return
 	}
-	// check for duplicate rule.
+	// check for duplicate engine.
 	if _, ok := s.RuleEntries[entry.RuleName]; ok {
-		s.AddError(fmt.Errorf("duplicate rule name '%s'", entry.RuleName))
+		s.AddError(fmt.Errorf("duplicate engine name '%s'", entry.RuleName))
 		return
 	}
-	// if everything ok, add the rule entry.
+	// if everything ok, add the engine entry.
 	s.RuleEntries[entry.RuleName] = entry
 }
 
@@ -96,6 +97,14 @@ func (s *GroolParserListener) EnterRuleName(ctx *parser.RuleNameContext) {
 
 // ExitRuleName is called when production ruleName is exited.
 func (s *GroolParserListener) ExitRuleName(ctx *parser.RuleNameContext) {}
+
+// EnterSalience is called when production salience is entered.
+func (s *GroolParserListener) EnterSalience(ctx *parser.SalienceContext) {
+	// salience were set by the decimal literal
+}
+
+// ExitSalience is called when production salience is exited.
+func (s *GroolParserListener) ExitSalience(ctx *parser.SalienceContext) {}
 
 // EnterRuleDescription is called when production ruleDescription is entered.
 func (s *GroolParserListener) EnterRuleDescription(ctx *parser.RuleDescriptionContext) {
@@ -443,25 +452,14 @@ func (s *GroolParserListener) ExitConstant(ctx *parser.ConstantContext) {
 	if len(s.ParseErrors) > 0 {
 		return
 	}
-	if cons.DataType == model.DecimalDataType && ctx.GetText()[:1] == "-" {
-		cons.DecimalValue = cons.DecimalValue * -1
-	}
-	if ctx.REAL_LITERAL() != nil {
-		cons.DataType = model.FloatDataType
-		flo, err := strconv.ParseFloat(ctx.GetText(), 64)
-		if err != nil {
-			s.AddError(fmt.Errorf("string to float conversion error. String is not real type '%s'", ctx.GetText()))
-			return
-		} else {
-			cons.FloatValue = flo
-		}
-	} else if ctx.NULL_LITERAL() != nil {
+	if ctx.NULL_LITERAL() != nil {
 		if ctx.NOT() != nil {
-			cons.IsNull = false
+			cons.ConstantValue = reflect.ValueOf("")
 		} else {
-			cons.IsNull = true
+			cons.ConstantValue = reflect.ValueOf(nil)
 		}
 	}
+
 	holder := s.Stack.Peek().(model.ConstantHolder)
 	err := holder.AcceptConstant(cons)
 	if err != nil {
@@ -478,13 +476,13 @@ func (s *GroolParserListener) ExitDecimalLiteral(ctx *parser.DecimalLiteralConte
 	if len(s.ParseErrors) > 0 {
 		return
 	}
-	cons := s.Stack.Peek().(*model.Constant)
+	decHold := s.Stack.Peek().(model.DecimalHolder)
 	i64, err := strconv.ParseInt(ctx.GetText(), 10, 64)
 	if err != nil {
 		s.AddError(fmt.Errorf("string to integer conversion error. literal is not a decimal '%s'", ctx.GetText()))
 	} else {
-		cons.DecimalValue = i64
-		cons.DataType = model.DecimalDataType
+		decHold.AcceptDecimal(i64)
+		//cons.ConstantValue = reflect.ValueOf(i64)
 	}
 }
 
@@ -498,8 +496,7 @@ func (s *GroolParserListener) ExitStringLiteral(ctx *parser.StringLiteralContext
 		return
 	}
 	cons := s.Stack.Peek().(*model.Constant)
-	cons.StringValue = ctx.GetText()
-	cons.DataType = model.StringDataType
+	cons.ConstantValue = reflect.ValueOf(ctx.GetText())
 }
 
 // EnterBooleanLiteral is called when production booleanLiteral is entered.
@@ -515,12 +512,29 @@ func (s *GroolParserListener) ExitBooleanLiteral(ctx *parser.BooleanLiteralConte
 	cons := s.Stack.Peek().(*model.Constant)
 	val := strings.ToLower(ctx.GetText())
 	if val == "true" {
-		cons.BooleanValue = true
-		cons.DataType = model.BooleanDataType
+		cons.ConstantValue = reflect.ValueOf(true)
 	} else if val == "false" {
-		cons.BooleanValue = false
-		cons.DataType = model.BooleanDataType
+		cons.ConstantValue = reflect.ValueOf(false)
 	} else {
 		s.AddError(fmt.Errorf("unknown boolear literal '%s'", ctx.GetText()))
+	}
+}
+
+// EnterRealLiteral is called when production realLiteral is entered.
+func (s *GroolParserListener) EnterRealLiteral(ctx *parser.RealLiteralContext) {}
+
+// ExitRealLiteral is called when production realLiteral is exited.
+func (s *GroolParserListener) ExitRealLiteral(ctx *parser.RealLiteralContext) {
+	// return immediately when there's an error
+	if len(s.ParseErrors) > 0 {
+		return
+	}
+	cons := s.Stack.Peek().(*model.Constant)
+	flo, err := strconv.ParseFloat(ctx.GetText(), 64)
+	if err != nil {
+		s.AddError(fmt.Errorf("string to float conversion error. String is not real type '%s'", ctx.GetText()))
+		return
+	} else {
+		cons.ConstantValue = reflect.ValueOf(flo)
 	}
 }

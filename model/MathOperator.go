@@ -1,10 +1,10 @@
 package model
 
 var (
-	MathOperatorMul   = MathOperator(0)
-	MathOperatorDiv   = MathOperator(1)
-	MathOperatorPlus  = MathOperator(2)
-	MathOperatorMinus = MathOperator(3)
+	MathOperatorMul   = MathOperator(1)
+	MathOperatorDiv   = MathOperator(2)
+	MathOperatorPlus  = MathOperator(3)
+	MathOperatorMinus = MathOperator(4)
 )
 
 type MathOperator int

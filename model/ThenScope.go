@@ -17,3 +17,12 @@ func (ins *ThenScope) Initialize(knowledgeContext *context.KnowledgeContext, rul
 		ins.AssignExpressions.Initialize(knowledgeContext, ruleCtx, dataCtx)
 	}
 }
+
+func (ts *ThenScope) Execute() error {
+	_, err := ts.AssignExpressions.Evaluate()
+	if err != nil {
+		return err
+	} else {
+		return nil
+	}
+}

@@ -5,7 +5,9 @@ import (
 	"github.com/antlr/antlr4/runtime/Go/antlr"
 	"github.com/newm4n/grool/antlr/parser"
 	"io/ioutil"
+	"reflect"
 	"testing"
+	"time"
 )
 
 func TestLexer(t *testing.T) {
@@ -55,4 +57,10 @@ func TestParser(t *testing.T) {
 		}
 	}
 
+}
+
+func TestTimeKind(t *testing.T) {
+	n := time.Now()
+	nt := reflect.TypeOf(n)
+	fmt.Println(nt.String())
 }

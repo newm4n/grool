@@ -14,6 +14,9 @@ type groolListener interface {
 	// EnterRuleEntry is called when entering the ruleEntry production.
 	EnterRuleEntry(c *RuleEntryContext)
 
+	// EnterSalience is called when entering the salience production.
+	EnterSalience(c *SalienceContext)
+
 	// EnterRuleName is called when entering the ruleName production.
 	EnterRuleName(c *RuleNameContext)
 
@@ -68,6 +71,9 @@ type groolListener interface {
 	// EnterDecimalLiteral is called when entering the decimalLiteral production.
 	EnterDecimalLiteral(c *DecimalLiteralContext)
 
+	// EnterRealLiteral is called when entering the realLiteral production.
+	EnterRealLiteral(c *RealLiteralContext)
+
 	// EnterStringLiteral is called when entering the stringLiteral production.
 	EnterStringLiteral(c *StringLiteralContext)
 
@@ -79,6 +85,9 @@ type groolListener interface {
 
 	// ExitRuleEntry is called when exiting the ruleEntry production.
 	ExitRuleEntry(c *RuleEntryContext)
+
+	// ExitSalience is called when exiting the salience production.
+	ExitSalience(c *SalienceContext)
 
 	// ExitRuleName is called when exiting the ruleName production.
 	ExitRuleName(c *RuleNameContext)
@@ -133,6 +142,9 @@ type groolListener interface {
 
 	// ExitDecimalLiteral is called when exiting the decimalLiteral production.
 	ExitDecimalLiteral(c *DecimalLiteralContext)
+
+	// ExitRealLiteral is called when exiting the realLiteral production.
+	ExitRealLiteral(c *RealLiteralContext)
 
 	// ExitStringLiteral is called when exiting the stringLiteral production.
 	ExitStringLiteral(c *StringLiteralContext)

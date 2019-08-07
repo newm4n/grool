@@ -1,6 +1,10 @@
 package model
 
-import "github.com/newm4n/grool/context"
+import (
+	"fmt"
+	"github.com/newm4n/grool/context"
+	"reflect"
+)
 
 type ArgumentHolder struct {
 	Constant         *Constant
@@ -25,5 +29,19 @@ func (ins *ArgumentHolder) Initialize(knowledgeContext *context.KnowledgeContext
 	}
 	if ins.Expression != nil {
 		ins.Expression.Initialize(knowledgeContext, ruleCtx, dataCtx)
+	}
+}
+
+func (ins *ArgumentHolder) Evaluate() (reflect.Value, error) {
+	if len(ins.Variable) > 0 {
+		return ins.dataCtx.GetValue(ins.Variable)
+	} else if ins.Constant != nil {
+		return ins.Constant.Evaluate()
+	} else if ins.FunctionCall != nil {
+		return ins.FunctionCall.Evaluate()
+	} else if ins.Expression != nil {
+		return ins.Expression.Evaluate()
+	} else {
+		return reflect.ValueOf(nil), fmt.Errorf("argument holder stores no value")
 	}
 }

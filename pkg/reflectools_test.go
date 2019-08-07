@@ -224,7 +224,7 @@ func TestGetAttributeValue(t *testing.T) {
 			C: 456.789,
 		},
 	}
-	itv, err := GetAttributeValue(to, "A")
+	itv, err := GetAttributeInterface(to, "A")
 	if err != nil {
 		t.Errorf("Got error %v", err)
 		t.FailNow()
@@ -241,17 +241,17 @@ func TestSetAttributeValue(t *testing.T) {
 		C: 456.789,
 		D: true,
 	}
-	err := SetAttributeValue(testObject, "A", "strong data")
+	err := SetAttributeInterface(testObject, "A", "strong data")
 	if err != nil {
 		t.Errorf("Got error %v", err)
 		t.FailNow()
 	}
-	err = SetAttributeValue(testObject, "B", 456)
+	err = SetAttributeInterface(testObject, "B", 456)
 	if err != nil {
 		t.Errorf("Got error %v", err)
 		t.FailNow()
 	}
-	err = SetAttributeValue(testObject, "B", 456.123)
+	err = SetAttributeInterface(testObject, "B", 456.123)
 	if err == nil {
 		t.Errorf("Should not be able to set with different type")
 		t.FailNow()
@@ -266,7 +266,7 @@ func TestSetAttributeValue(t *testing.T) {
 		B: 2019,
 		C: 2019.6,
 	}
-	err = SetAttributeValue(testObject, "F", tso)
+	err = SetAttributeInterface(testObject, "F", tso)
 	if err != nil {
 		t.Errorf("Should not be able to set with different type : %v", err)
 		t.FailNow()

@@ -6,7 +6,7 @@
    As well as this
 */
 
-rule RuleOne "Some rule description." {
+rule RuleOne "Some rule description." salience 10 {
     when
         (someContext.attributeA.attributeA == 123 &&
         someContext.attributeA.attributeB > 123 ||
@@ -53,4 +53,5 @@ rule RuleTwo "Some rule description." {
         otherContext.property.attr1 = otherContext.property.attr1-12;
         // commented code
         // otherContext.property.attr1 = func(otherContext.property.attr1-12) / 45;
+        log("this is to be logged");
 }

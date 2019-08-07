@@ -1,6 +1,10 @@
 package model
 
-import "github.com/newm4n/grool/context"
+import (
+	"fmt"
+	"github.com/newm4n/grool/context"
+	"reflect"
+)
 
 type AssignExpressions struct {
 	ExpressionList   []*AssignExpression
@@ -19,4 +23,14 @@ func (ins *AssignExpressions) Initialize(knowledgeContext *context.KnowledgeCont
 			val.Initialize(knowledgeContext, ruleCtx, dataCtx)
 		}
 	}
+}
+
+func (ins *AssignExpressions) Evaluate() (reflect.Value, error) {
+	for _, v := range ins.ExpressionList {
+		i, err := v.Evaluate()
+		if err != nil {
+			return reflect.ValueOf(nil), fmt.Errorf("error evaluating assignment #%d", i)
+		}
+	}
+	return reflect.ValueOf(nil), nil
 }

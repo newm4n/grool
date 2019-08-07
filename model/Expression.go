@@ -3,6 +3,7 @@ package model
 import (
 	"fmt"
 	"github.com/newm4n/grool/context"
+	"reflect"
 )
 
 type Expression struct {
@@ -40,4 +41,28 @@ func (expr *Expression) AcceptExpression(expression *Expression) error {
 	}
 	expr.LeftExpression = expression
 	return nil
+}
+
+func (expr *Expression) Evaluate() (reflect.Value, error) {
+	if expr.Predicate != nil {
+		return expr.Predicate.Evaluate()
+	} else {
+		lv, err := expr.LeftExpression.Evaluate()
+		if err != nil {
+			return lv, err
+		}
+		rv, err := expr.RightExpression.Evaluate()
+		if err != nil {
+			return rv, err
+		}
+		if rv.Kind() == lv.Kind() && rv.Kind() == reflect.Bool {
+			if expr.LogicalOperator == LogicalOperatorAnd {
+				return reflect.ValueOf(lv.Bool() && rv.Bool()), nil
+			} else {
+				return reflect.ValueOf(lv.Bool() || rv.Bool()), nil
+			}
+		} else {
+			return reflect.ValueOf(nil), fmt.Errorf("cannot apply logical for non boolean expression")
+		}
+	}
 }

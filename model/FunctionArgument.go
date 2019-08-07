@@ -1,12 +1,28 @@
 package model
 
-import "github.com/newm4n/grool/context"
+import (
+	"github.com/newm4n/grool/context"
+	"reflect"
+)
 
 type FunctionArgument struct {
 	Arguments        []*ArgumentHolder
 	knowledgeContext *context.KnowledgeContext
 	ruleCtx          *context.RuleContext
 	dataCtx          *context.DataContext
+}
+
+func (ins *FunctionArgument) EvaluateArguments() ([]reflect.Value, error) {
+	retVal := make([]reflect.Value, len(ins.Arguments))
+	for i, v := range ins.Arguments {
+		rv, err := v.Evaluate()
+		if err != nil {
+			return retVal, err
+		} else {
+			retVal[i] = rv
+		}
+	}
+	return retVal, nil
 }
 
 func (ins *FunctionArgument) Initialize(knowledgeContext *context.KnowledgeContext, ruleCtx *context.RuleContext, dataCtx *context.DataContext) {

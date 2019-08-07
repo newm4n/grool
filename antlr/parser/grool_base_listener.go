@@ -33,6 +33,12 @@ func (s *BasegroolListener) EnterRuleEntry(ctx *RuleEntryContext) {}
 // ExitRuleEntry is called when production ruleEntry is exited.
 func (s *BasegroolListener) ExitRuleEntry(ctx *RuleEntryContext) {}
 
+// EnterSalience is called when production salience is entered.
+func (s *BasegroolListener) EnterSalience(ctx *SalienceContext) {}
+
+// ExitSalience is called when production salience is exited.
+func (s *BasegroolListener) ExitSalience(ctx *SalienceContext) {}
+
 // EnterRuleName is called when production ruleName is entered.
 func (s *BasegroolListener) EnterRuleName(ctx *RuleNameContext) {}
 
@@ -140,6 +146,12 @@ func (s *BasegroolListener) EnterDecimalLiteral(ctx *DecimalLiteralContext) {}
 
 // ExitDecimalLiteral is called when production decimalLiteral is exited.
 func (s *BasegroolListener) ExitDecimalLiteral(ctx *DecimalLiteralContext) {}
+
+// EnterRealLiteral is called when production realLiteral is entered.
+func (s *BasegroolListener) EnterRealLiteral(ctx *RealLiteralContext) {}
+
+// ExitRealLiteral is called when production realLiteral is exited.
+func (s *BasegroolListener) ExitRealLiteral(ctx *RealLiteralContext) {}
 
 // EnterStringLiteral is called when production stringLiteral is entered.
 func (s *BasegroolListener) EnterStringLiteral(ctx *StringLiteralContext) {}

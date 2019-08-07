@@ -84,9 +84,11 @@ func IsValidField(obj interface{}, fieldName string) bool {
 	if objType.Kind() == reflect.Struct {
 		fieldVal := objVal.FieldByName(fieldName)
 		return fieldVal.IsValid()
-	} else {
+	} else if objType.Kind() == reflect.Ptr {
 		fieldVal := objVal.Elem().FieldByName(fieldName)
 		return fieldVal.IsValid()
+	} else {
+		return false
 	}
 }
 
@@ -157,28 +159,57 @@ func GetAttributeList(obj interface{}) ([]string, error) {
 	return strRet, nil
 }
 
-func GetAttributeValue(obj interface{}, fieldName string) (interface{}, error) {
+func GetAttributeValue(obj interface{}, fieldName string) (reflect.Value, error) {
+	if !IsStruct(obj) {
+		return reflect.ValueOf(nil), fmt.Errorf("param is not a struct")
+	}
+	if !IsValidField(obj, fieldName) {
+		return reflect.ValueOf(nil), fmt.Errorf("attribute named %s not exist in struct", fieldName)
+	}
+	structval := reflect.ValueOf(obj)
+	var attrVal reflect.Value
+	if structval.Kind() == reflect.Ptr {
+		attrVal = structval.Elem().FieldByName(fieldName)
+	} else {
+		attrVal = structval.FieldByName(fieldName)
+	}
+	return attrVal, nil
+}
+
+func GetAttributeInterface(obj interface{}, fieldName string) (interface{}, error) {
+	val, err := GetAttributeValue(obj, fieldName)
+	if err != nil {
+		return nil, err
+	} else {
+		return ValueToInterface(val), nil
+	}
+}
+
+func GetAttributeType(obj interface{}, fieldName string) (reflect.Type, error) {
 	if !IsStruct(obj) {
 		return nil, fmt.Errorf("param is not a struct")
 	}
 	if !IsValidField(obj, fieldName) {
-		return nil, fmt.Errorf("function named %s not exist in struct", fieldName)
+		return nil, fmt.Errorf("attribute named %s not exist in struct", fieldName)
 	}
 	structval := reflect.ValueOf(obj)
-	attrVal := structval.FieldByName(fieldName)
-	return ValueToInterface(attrVal), nil
+	var attrVal reflect.Value
+	if structval.Kind() == reflect.Ptr {
+		attrVal = structval.Elem().FieldByName(fieldName)
+	} else {
+		attrVal = structval.FieldByName(fieldName)
+	}
+	return attrVal.Type(), nil
 }
 
-func SetAttributeValue(obj interface{}, fieldName string, value interface{}) error {
+func SetAttributeValue(obj interface{}, fieldName string, value reflect.Value) error {
 	if !IsStruct(obj) {
 		return fmt.Errorf("param is not a struct")
 	}
 	if !IsValidField(obj, fieldName) {
-		return fmt.Errorf("function named %s not exist in struct", fieldName)
+		return fmt.Errorf("attribute named %s not exist in struct", fieldName)
 	}
-
 	var fieldVal reflect.Value
-
 	objType := reflect.TypeOf(obj)
 	objVal := reflect.ValueOf(obj)
 	// If Obj param is a pointer
@@ -202,55 +233,28 @@ func SetAttributeValue(obj interface{}, fieldName string, value interface{}) err
 	}
 
 	// Check source data type compatibility with the field type
-	if fieldVal.Type() != reflect.TypeOf(value) { // pointer check
-		return fmt.Errorf("can not assign type %s to %s", reflect.TypeOf(value).String(), fieldVal.Type().String())
+	if fieldVal.Type() != value.Type() { // pointer check
+		return fmt.Errorf("can not assign type %s to %s", value.Type().String(), fieldVal.Type().String())
 	}
 	if fieldVal.CanSet() {
 		switch fieldVal.Type().Kind() {
 		case reflect.String:
-			fieldVal.SetString(value.(string))
+			fieldVal.SetString(value.String())
 			break
-		case reflect.Int:
-			fieldVal.SetInt(int64(value.(int)))
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			fieldVal.SetInt(value.Int())
 			break
-		case reflect.Int8:
-			fieldVal.SetInt(int64(value.(int8)))
+		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			fieldVal.SetUint(value.Uint())
 			break
-		case reflect.Int16:
-			fieldVal.SetInt(int64(value.(int16)))
-			break
-		case reflect.Int32:
-			fieldVal.SetInt(int64(value.(int32)))
-			break
-		case reflect.Int64:
-			fieldVal.SetInt(value.(int64))
-			break
-		case reflect.Uint:
-			fieldVal.SetUint(uint64(value.(uint)))
-			break
-		case reflect.Uint8:
-			fieldVal.SetUint(uint64(value.(uint8)))
-			break
-		case reflect.Uint16:
-			fieldVal.SetUint(uint64(value.(uint16)))
-			break
-		case reflect.Uint32:
-			fieldVal.SetUint(uint64(value.(uint32)))
-			break
-		case reflect.Uint64:
-			fieldVal.SetUint(uint64(value.(uint64)))
-			break
-		case reflect.Float32:
-			fieldVal.SetFloat(float64(value.(float32)))
-			break
-		case reflect.Float64:
-			fieldVal.SetFloat(value.(float64))
+		case reflect.Float32, reflect.Float64:
+			fieldVal.SetFloat(value.Float())
 			break
 		case reflect.Bool:
-			fieldVal.SetBool(value.(bool))
+			fieldVal.SetBool(value.Bool())
 			break
 		case reflect.Ptr:
-			fieldVal.Set(reflect.ValueOf(value))
+			fieldVal.Set(value)
 			break
 		case reflect.Slice:
 			// todo Add setter for slice type field
@@ -273,12 +277,23 @@ func SetAttributeValue(obj interface{}, fieldName string, value interface{}) err
 	return nil
 }
 
+func SetAttributeInterface(obj interface{}, fieldName string, value interface{}) error {
+	if !IsStruct(obj) {
+		return fmt.Errorf("param is not a struct")
+	}
+	if !IsValidField(obj, fieldName) {
+		return fmt.Errorf("attribute named %s not exist in struct", fieldName)
+	}
+
+	return SetAttributeValue(obj, fieldName, reflect.ValueOf(value))
+}
+
 func IsAttributeArray(obj interface{}, fieldName string) (bool, error) {
 	if !IsStruct(obj) {
 		return false, fmt.Errorf("param is not a struct")
 	}
 	if !IsValidField(obj, fieldName) {
-		return false, fmt.Errorf("function named %s not exist in struct", fieldName)
+		return false, fmt.Errorf("attribute named %s not exist in struct", fieldName)
 	}
 	objVal := reflect.ValueOf(obj)
 	fieldVal := objVal.Elem().FieldByName(fieldName)
@@ -290,7 +305,7 @@ func IsAttributeMap(obj interface{}, fieldName string) (bool, error) {
 		return false, fmt.Errorf("param is not a struct")
 	}
 	if !IsValidField(obj, fieldName) {
-		return false, fmt.Errorf("function named %s not exist in struct", fieldName)
+		return false, fmt.Errorf("attribute named %s not exist in struct", fieldName)
 	}
 	objVal := reflect.ValueOf(obj)
 	fieldVal := objVal.Elem().FieldByName(fieldName)
@@ -302,7 +317,7 @@ func IsAttributeNil(obj interface{}, fieldName string) (bool, error) {
 		return false, fmt.Errorf("param is not a struct")
 	}
 	if !IsValidField(obj, fieldName) {
-		return false, fmt.Errorf("function named %s not exist in struct", fieldName)
+		return false, fmt.Errorf("attribute named %s not exist in struct", fieldName)
 	}
 	objVal := reflect.ValueOf(obj)
 	fieldVal := objVal.Elem().FieldByName(fieldName)
@@ -310,7 +325,7 @@ func IsAttributeNil(obj interface{}, fieldName string) (bool, error) {
 }
 
 func GetAttributeStringValue(obj interface{}, fieldName string) (string, error) {
-	val, err := GetAttributeValue(obj, fieldName)
+	val, err := GetAttributeInterface(obj, fieldName)
 	if err != nil {
 		return "", err
 	}
@@ -318,11 +333,11 @@ func GetAttributeStringValue(obj interface{}, fieldName string) (string, error) 
 }
 
 func SetAttributeStringValue(obj interface{}, fieldName string, newValue string) error {
-	return SetAttributeValue(obj, fieldName, newValue)
+	return SetAttributeInterface(obj, fieldName, newValue)
 }
 
 func GetAttributeIntValue(obj interface{}, fieldName string) (int, error) {
-	val, err := GetAttributeValue(obj, fieldName)
+	val, err := GetAttributeInterface(obj, fieldName)
 	if err != nil {
 		return 0, err
 	}
@@ -331,11 +346,11 @@ func GetAttributeIntValue(obj interface{}, fieldName string) (int, error) {
 }
 
 func SetAttributeIntValue(obj interface{}, fieldName string, newValue int) error {
-	return SetAttributeValue(obj, fieldName, newValue)
+	return SetAttributeInterface(obj, fieldName, newValue)
 }
 
 func GetAttributeInt8Value(obj interface{}, fieldName string) (int8, error) {
-	val, err := GetAttributeValue(obj, fieldName)
+	val, err := GetAttributeInterface(obj, fieldName)
 	if err != nil {
 		return 0, err
 	}
@@ -343,11 +358,11 @@ func GetAttributeInt8Value(obj interface{}, fieldName string) (int8, error) {
 }
 
 func SetAttributeInt8Value(obj interface{}, fieldName string, newValue int8) error {
-	return SetAttributeValue(obj, fieldName, newValue)
+	return SetAttributeInterface(obj, fieldName, newValue)
 }
 
 func GetAttributeInt16Value(obj interface{}, fieldName string) (int16, error) {
-	val, err := GetAttributeValue(obj, fieldName)
+	val, err := GetAttributeInterface(obj, fieldName)
 	if err != nil {
 		return 0, err
 	}
@@ -355,11 +370,11 @@ func GetAttributeInt16Value(obj interface{}, fieldName string) (int16, error) {
 }
 
 func SetAttributeInt16Value(obj interface{}, fieldName string, newValue int16) error {
-	return SetAttributeValue(obj, fieldName, newValue)
+	return SetAttributeInterface(obj, fieldName, newValue)
 }
 
 func GetAttributeInt32Value(obj interface{}, fieldName string) (int32, error) {
-	val, err := GetAttributeValue(obj, fieldName)
+	val, err := GetAttributeInterface(obj, fieldName)
 	if err != nil {
 		return 0, err
 	}
@@ -367,11 +382,11 @@ func GetAttributeInt32Value(obj interface{}, fieldName string) (int32, error) {
 }
 
 func SetAttributeInt32Value(obj interface{}, fieldName string, newValue int32) error {
-	return SetAttributeValue(obj, fieldName, newValue)
+	return SetAttributeInterface(obj, fieldName, newValue)
 }
 
 func GetAttributeInt64Value(obj interface{}, fieldName string) (int64, error) {
-	val, err := GetAttributeValue(obj, fieldName)
+	val, err := GetAttributeInterface(obj, fieldName)
 	if err != nil {
 		return 0, err
 	}
@@ -379,11 +394,11 @@ func GetAttributeInt64Value(obj interface{}, fieldName string) (int64, error) {
 }
 
 func SetAttributeInt64Value(obj interface{}, fieldName string, newValue int64) error {
-	return SetAttributeValue(obj, fieldName, newValue)
+	return SetAttributeInterface(obj, fieldName, newValue)
 }
 
 func GetAttributeUIntValue(obj interface{}, fieldName string) (uint, error) {
-	val, err := GetAttributeValue(obj, fieldName)
+	val, err := GetAttributeInterface(obj, fieldName)
 	if err != nil {
 		return 0, err
 	}
@@ -391,11 +406,11 @@ func GetAttributeUIntValue(obj interface{}, fieldName string) (uint, error) {
 }
 
 func SetAttributeUIntValue(obj interface{}, fieldName string, newValue uint) error {
-	return SetAttributeValue(obj, fieldName, newValue)
+	return SetAttributeInterface(obj, fieldName, newValue)
 }
 
 func GetAttributeUInt8Value(obj interface{}, fieldName string) (uint8, error) {
-	val, err := GetAttributeValue(obj, fieldName)
+	val, err := GetAttributeInterface(obj, fieldName)
 	if err != nil {
 		return 0, err
 	}
@@ -403,11 +418,11 @@ func GetAttributeUInt8Value(obj interface{}, fieldName string) (uint8, error) {
 }
 
 func SetAttributeUInt8Value(obj interface{}, fieldName string, newValue uint8) error {
-	return SetAttributeValue(obj, fieldName, newValue)
+	return SetAttributeInterface(obj, fieldName, newValue)
 }
 
 func GetAttributeUInt16Value(obj interface{}, fieldName string) (uint16, error) {
-	val, err := GetAttributeValue(obj, fieldName)
+	val, err := GetAttributeInterface(obj, fieldName)
 	if err != nil {
 		return 0, err
 	}
@@ -415,11 +430,11 @@ func GetAttributeUInt16Value(obj interface{}, fieldName string) (uint16, error) 
 }
 
 func SetAttributeUInt16Value(obj interface{}, fieldName string, newValue uint16) error {
-	return SetAttributeValue(obj, fieldName, newValue)
+	return SetAttributeInterface(obj, fieldName, newValue)
 }
 
 func GetAttributeUInt32Value(obj interface{}, fieldName string) (uint32, error) {
-	val, err := GetAttributeValue(obj, fieldName)
+	val, err := GetAttributeInterface(obj, fieldName)
 	if err != nil {
 		return 0, err
 	}
@@ -427,11 +442,11 @@ func GetAttributeUInt32Value(obj interface{}, fieldName string) (uint32, error) 
 }
 
 func SetAttributeUInt32Value(obj interface{}, fieldName string, newValue uint32) error {
-	return SetAttributeValue(obj, fieldName, newValue)
+	return SetAttributeInterface(obj, fieldName, newValue)
 }
 
 func GetAttributeUInt64Value(obj interface{}, fieldName string) (uint64, error) {
-	val, err := GetAttributeValue(obj, fieldName)
+	val, err := GetAttributeInterface(obj, fieldName)
 	if err != nil {
 		return 0, err
 	}
@@ -439,11 +454,11 @@ func GetAttributeUInt64Value(obj interface{}, fieldName string) (uint64, error) 
 }
 
 func SetAttributeUInt64Value(obj interface{}, fieldName string, newValue uint64) error {
-	return SetAttributeValue(obj, fieldName, newValue)
+	return SetAttributeInterface(obj, fieldName, newValue)
 }
 
 func GetAttributeBoolValue(obj interface{}, fieldName string) (bool, error) {
-	val, err := GetAttributeValue(obj, fieldName)
+	val, err := GetAttributeInterface(obj, fieldName)
 	if err != nil {
 		return false, err
 	}
@@ -451,10 +466,10 @@ func GetAttributeBoolValue(obj interface{}, fieldName string) (bool, error) {
 }
 
 func SetAttributeBoolValue(obj interface{}, fieldName string, newValue bool) error {
-	return SetAttributeValue(obj, fieldName, newValue)
+	return SetAttributeInterface(obj, fieldName, newValue)
 }
 func GetAttributeFloat32Value(obj interface{}, fieldName string) (float32, error) {
-	val, err := GetAttributeValue(obj, fieldName)
+	val, err := GetAttributeInterface(obj, fieldName)
 	if err != nil {
 		return 0, err
 	}
@@ -462,10 +477,10 @@ func GetAttributeFloat32Value(obj interface{}, fieldName string) (float32, error
 }
 
 func SetAttributeFloat32Value(obj interface{}, fieldName string, newValue float32) error {
-	return SetAttributeValue(obj, fieldName, newValue)
+	return SetAttributeInterface(obj, fieldName, newValue)
 }
 func GetAttributeFloat64Value(obj interface{}, fieldName string) (float64, error) {
-	val, err := GetAttributeValue(obj, fieldName)
+	val, err := GetAttributeInterface(obj, fieldName)
 	if err != nil {
 		return 0, err
 	}
@@ -473,11 +488,11 @@ func GetAttributeFloat64Value(obj interface{}, fieldName string) (float64, error
 }
 
 func SetAttributeFloat64Value(obj interface{}, fieldName string, newValue float64) error {
-	return SetAttributeValue(obj, fieldName, newValue)
+	return SetAttributeInterface(obj, fieldName, newValue)
 }
 
 func GetAttributeTimeValue(obj interface{}, fieldName string) (time.Time, error) {
-	val, err := GetAttributeValue(obj, fieldName)
+	val, err := GetAttributeInterface(obj, fieldName)
 	if err != nil {
 		return time.Now(), err
 	}
@@ -485,5 +500,18 @@ func GetAttributeTimeValue(obj interface{}, fieldName string) (time.Time, error)
 }
 
 func SetAttributeTimeValue(obj interface{}, fieldName string, newValue time.Time) error {
-	return SetAttributeValue(obj, fieldName, newValue)
+	return SetAttributeInterface(obj, fieldName, newValue)
+}
+
+func GetBaseKind(val reflect.Value) reflect.Kind {
+	switch val.Kind() {
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return reflect.Int64
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		return reflect.Uint64
+	case reflect.Float32, reflect.Float64:
+		return reflect.Float64
+	default:
+		return val.Kind()
+	}
 }
