@@ -9,10 +9,13 @@ import (
 )
 
 func NewGroolEngine() *Grool {
-	return &Grool{}
+	return &Grool{
+		MaxCycle: 5000,
+	}
 }
 
 type Grool struct {
+	MaxCycle uint64
 }
 
 func (g *Grool) Execute(dataCtx *context.DataContext, knowledge *model.KnowledgeBase) error {
@@ -22,7 +25,7 @@ func (g *Grool) Execute(dataCtx *context.DataContext, knowledge *model.Knowledge
 		v.Initialize(kctx, rctx, dataCtx)
 	}
 
-	cycle := 0
+	var cycle uint64
 
 	/*
 		Un-limitted loop as long as there are rule to execute.
@@ -31,6 +34,11 @@ func (g *Grool) Execute(dataCtx *context.DataContext, knowledge *model.Knowledge
 	*/
 	for true {
 		cycle++
+
+		if cycle > g.MaxCycle {
+			return errors.Errorf("Grool successfully selected rule candidate for execution after %d cycles, this could possibly caused by rule entry(s) that keep added into execution pool but when executed it does not change any data in context. Please evaluate your rule entries \"When\" and \"Then\" scope. You can adjust the maximum cycle using Grool.MaxCycle variable.", g.MaxCycle)
+		}
+
 		// Select all rule entry that can be executed.
 		runnable := make([]*model.RuleEntry, 0)
 		for _, v := range knowledge.RuleEntries {

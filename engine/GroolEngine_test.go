@@ -59,6 +59,7 @@ rule StartSpeedDown "When testcar is speeding up and over max speed we change to
         TestCar.SpeedUp == true && TestCar.Speed >= TestCar.MaxSpeed
     then
         TestCar.SpeedUp = false;
+		log("Now we slow down");
 }
 
 rule SlowDown "When testcar is slowing down we keep decreasing the speed."  {

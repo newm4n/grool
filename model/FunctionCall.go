@@ -3,6 +3,7 @@ package model
 import (
 	"github.com/juju/errors"
 	"github.com/newm4n/grool/context"
+	"log"
 	"reflect"
 	"time"
 )
@@ -43,7 +44,9 @@ func (exp *FunctionCall) Evaluate() (reflect.Value, error) {
 			if len(argumentValues) != 1 {
 				return reflect.ValueOf(nil), errors.Errorf("log function requires 1 string parameter")
 			} else {
-				return reflect.ValueOf(argumentValues[0].IsNil()), nil
+				stringVal := argumentValues[0].String()
+				log.Println(stringVal)
+				return reflect.ValueOf(nil), nil
 			}
 		default:
 			return reflect.ValueOf(nil), errors.Errorf("unrecognized function %s", exp.FunctionName)

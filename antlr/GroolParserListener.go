@@ -296,7 +296,9 @@ func (s *GroolParserListener) EnterFunctionCall(ctx *parser.FunctionCallContext)
 	if len(s.ParseErrors) > 0 {
 		return
 	}
-	funcCall := &model.FunctionCall{}
+	funcCall := &model.FunctionCall{
+		FunctionName: ctx.SIMPLENAME().GetText(),
+	}
 	s.Stack.Push(funcCall)
 }
 
