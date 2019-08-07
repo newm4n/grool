@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"fmt"
+	"reflect"
 	"testing"
 	"time"
 )
@@ -26,6 +27,29 @@ type TestObject struct {
 	Q []int
 	R map[int]string
 	S TestSubObjectNoPtr
+}
+
+func TestSetAttributeTimeValue(t *testing.T) {
+	to := &TestObject{
+		E: time.Date(2002, 2, 2, 2, 2, 2, 2, time.Local),
+	}
+
+	vto := reflect.ValueOf(to)
+	if vto.Kind() != reflect.Ptr {
+		t.FailNow()
+	}
+	eVal := vto.Elem().FieldByName("E")
+	if eVal.Kind() != reflect.Struct || eVal.Type().String() != "time.Time" {
+		t.FailNow()
+	}
+	if !eVal.CanSet() {
+		t.FailNow()
+	}
+
+	newVal := reflect.ValueOf(time.Date(2003, 3, 3, 3, 3, 3, 3, time.Local))
+	eVal.Set(newVal)
+	ti := ValueToInterface(eVal).(time.Time)
+	fmt.Printf("Time is %v\n", ti)
 }
 
 func (to *TestObject) FunctionA(arg1 string, arg2 string) (string, error) {
@@ -230,6 +254,15 @@ func TestGetAttributeValue(t *testing.T) {
 		t.FailNow()
 	}
 	if itv.(string) != "string data" {
+		t.FailNow()
+	}
+	tim, err := GetAttributeValue(to, "E")
+	if err != nil {
+		t.Errorf("Got error %v", err)
+		t.FailNow()
+	}
+	if tim.Type().String() != "time.Time" {
+		t.Errorf("Not time")
 		t.FailNow()
 	}
 }

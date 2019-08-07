@@ -5,8 +5,10 @@ import (
 	"github.com/newm4n/grool/context"
 	"github.com/newm4n/grool/model"
 	"github.com/newm4n/grool/pkg"
+	"reflect"
 	"sort"
 	"testing"
+	"time"
 )
 
 type Sorting struct {
@@ -42,6 +44,7 @@ type TestCar struct {
 
 type DistanceRecorder struct {
 	TotalDistance int
+	TestTime      time.Time
 }
 
 const (
@@ -68,6 +71,14 @@ rule SlowDown "When testcar is slowing down we keep decreasing the speed."  {
     then
         TestCar.Speed = TestCar.Speed - TestCar.SpeedIncrement;
 		DistanceRecord.TotalDistance = DistanceRecord.TotalDistance + TestCar.Speed;
+}
+
+rule SetTime "When Distance Recorder time not set, set it." {
+	when
+		isNil(DistanceRecord.TestTime)
+	then
+		log("Set the test time");
+		DistanceRecord.TestTime = now();
 }
 `
 )
@@ -101,5 +112,24 @@ func TestGrool_Execute(t *testing.T) {
 		} else {
 			t.Log(dr.TotalDistance)
 		}
+	}
+}
+
+func TestEmptyValueEquality(t *testing.T) {
+	t1 := time.Time{}
+	tv1 := reflect.ValueOf(t1)
+	tv2 := reflect.Zero(tv1.Type())
+
+	if tv1.Type() != tv2.Type() {
+		t.Logf("%s vs %s", tv1.Type().String(), tv2.Type().String())
+		t.FailNow()
+	}
+
+	if pkg.ValueToInterface(tv1) != pkg.ValueToInterface(tv2) {
+		t.Logf("%s vs %s", tv1.Kind().String(), tv2.Kind().String())
+		t.Logf("%s vs %s", tv1.Type().String(), tv2.Type().String())
+		t.Logf("%v vs %v", tv1.IsValid(), tv2.IsValid())
+
+		t.FailNow()
 	}
 }

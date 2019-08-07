@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"github.com/juju/errors"
+	"github.com/sirupsen/logrus"
 	"reflect"
 	"time"
 )
@@ -105,7 +106,7 @@ func IsStruct(obj interface{}) bool {
 }
 
 func ValueToInterface(v reflect.Value) interface{} {
-	if v.Type().Kind().String() == reflect.String.String() {
+	if v.Type().Kind() == reflect.String {
 		return v.String()
 	} else {
 		switch v.Type().Kind() {
@@ -138,8 +139,14 @@ func ValueToInterface(v reflect.Value) interface{} {
 		case reflect.Ptr:
 			newPtr := reflect.New(v.Elem().Type())
 			newPtr.Elem().Set(v.Elem())
-
 			return newPtr.Interface()
+		case reflect.Struct:
+			if v.CanInterface() {
+				return v.Interface()
+			} else {
+				logrus.Errorf("Can't interface value of struct %v", v)
+				return nil
+			}
 		default:
 			return nil
 		}
@@ -258,16 +265,28 @@ func SetAttributeValue(obj interface{}, fieldName string, value reflect.Value) e
 			break
 		case reflect.Slice:
 			// todo Add setter for slice type field
-			return errors.Errorf("unsupported operation")
+			return errors.Errorf("unsupported operation to set slice")
 		case reflect.Array:
 			// todo Add setter for array type field
-			return errors.Errorf("unsupported operation")
+			return errors.Errorf("unsupported operation to set array")
 		case reflect.Map:
 			// todo Add setter for map type field
-			return errors.Errorf("unsupported operation")
+			return errors.Errorf("unsupported operation to set map")
 		case reflect.Struct:
-			// todo Add setter for slice type field
-			return errors.Errorf("unsupported operation")
+			if value.IsValid() {
+				if ValueToInterface(value) == nil {
+					return errors.Errorf("Time set failed 1")
+				}
+				fieldVal.Set(value)
+				//t := ValueToInterface(fieldVal).(time.Time)
+				if ValueToInterface(fieldVal) == nil {
+					return errors.Errorf("Time set failed 2")
+				}
+			} else {
+				return errors.Errorf("Setting with nil is not allowed")
+			}
+			//// todo Add setter for slice type field
+			//return errors.Errorf("unsupported operation to set struct")
 		default:
 			return nil
 		}
@@ -312,7 +331,7 @@ func IsAttributeMap(obj interface{}, fieldName string) (bool, error) {
 	return fieldVal.Type().Kind() == reflect.Map, nil
 }
 
-func IsAttributeNil(obj interface{}, fieldName string) (bool, error) {
+func IsAttributeNilOrZero(obj interface{}, fieldName string) (bool, error) {
 	if !IsStruct(obj) {
 		return false, errors.Errorf("param is not a struct")
 	}
@@ -321,7 +340,24 @@ func IsAttributeNil(obj interface{}, fieldName string) (bool, error) {
 	}
 	objVal := reflect.ValueOf(obj)
 	fieldVal := objVal.Elem().FieldByName(fieldName)
-	return fieldVal.IsNil(), nil
+	if fieldVal.Kind() == reflect.Ptr {
+		return fieldVal.IsNil(), nil
+	} else if fieldVal.Kind() == reflect.Struct {
+		z0 := reflect.Zero(fieldVal.Type())
+		return ValueToInterface(z0) == ValueToInterface(fieldVal), nil
+	} else if GetBaseKind(fieldVal) == reflect.Int64 {
+		return fieldVal.Int() == 0, nil
+	} else if GetBaseKind(fieldVal) == reflect.Uint64 {
+		return fieldVal.Uint() == 0, nil
+	} else if GetBaseKind(fieldVal) == reflect.Float64 {
+		return fieldVal.Float() == 0, nil
+	} else if GetBaseKind(fieldVal) == reflect.String {
+		return len(fieldVal.String()) == 0, nil
+	} else if GetBaseKind(fieldVal) == reflect.Bool {
+		return fieldVal.Bool() == false, nil
+	} else {
+		return false, nil
+	}
 }
 
 func GetAttributeStringValue(obj interface{}, fieldName string) (string, error) {

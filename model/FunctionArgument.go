@@ -14,6 +14,9 @@ type FunctionArgument struct {
 }
 
 func (ins *FunctionArgument) EvaluateArguments() ([]reflect.Value, error) {
+	if ins.Arguments == nil || len(ins.Arguments) == 0 {
+		return make([]reflect.Value, 0), nil
+	}
 	retVal := make([]reflect.Value, len(ins.Arguments))
 	for i, v := range ins.Arguments {
 		rv, err := v.Evaluate()
