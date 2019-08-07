@@ -1,7 +1,7 @@
 package model
 
 import (
-	"fmt"
+	"github.com/juju/errors"
 	"github.com/newm4n/grool/context"
 	"github.com/newm4n/grool/pkg"
 	"reflect"
@@ -33,7 +33,7 @@ func (ins *Predicate) Initialize(knowledgeContext *context.KnowledgeContext, rul
 func (expr *Predicate) AcceptExpressionAtom(exprAtom *ExpressionAtom) error {
 	if expr.ExpressionAtomLeft != nil {
 		if expr.ExpressionAtomRight != nil {
-			return fmt.Errorf("expression alredy set twice")
+			return errors.Errorf("expression alredy set twice")
 		}
 		expr.ExpressionAtomRight = exprAtom
 	}
@@ -47,11 +47,11 @@ func (pre *Predicate) Evaluate() (reflect.Value, error) {
 	} else {
 		lv, err := pre.ExpressionAtomLeft.Evaluate()
 		if err != nil {
-			return reflect.ValueOf(nil), err
+			return reflect.ValueOf(nil), errors.Trace(err)
 		}
 		rv, err := pre.ExpressionAtomRight.Evaluate()
 		if err != nil {
-			return reflect.ValueOf(nil), err
+			return reflect.ValueOf(nil), errors.Trace(err)
 		}
 		if lv.Kind() == rv.Kind() && (pre.ComparisonOperator == ComparisonOperatorEQ || pre.ComparisonOperator == ComparisonOperatorNEQ) {
 			if pre.ComparisonOperator == ComparisonOperatorEQ {
@@ -117,7 +117,7 @@ func (pre *Predicate) Evaluate() (reflect.Value, error) {
 			} else if pkg.GetBaseKind(lv) == reflect.Float64 {
 				lf = lv.Float()
 			} else {
-				return reflect.ValueOf(nil), fmt.Errorf("comparison operator can only between strings, time or numbers")
+				return reflect.ValueOf(nil), errors.Errorf("comparison operator can only between strings, time or numbers")
 			}
 			if pkg.GetBaseKind(rv) == reflect.Int64 {
 				rf = float64(rv.Int())
@@ -126,7 +126,7 @@ func (pre *Predicate) Evaluate() (reflect.Value, error) {
 			} else if pkg.GetBaseKind(lv) == reflect.Float64 {
 				rf = rv.Float()
 			} else {
-				return reflect.ValueOf(nil), fmt.Errorf("comparison operator can only between strings, time or numbers")
+				return reflect.ValueOf(nil), errors.Errorf("comparison operator can only between strings, time or numbers")
 			}
 			switch pre.ComparisonOperator {
 			case ComparisonOperatorEQ:

@@ -1,7 +1,7 @@
 package model
 
 import (
-	"fmt"
+	"github.com/juju/errors"
 	"github.com/newm4n/grool/context"
 	"reflect"
 )
@@ -39,6 +39,6 @@ func (ins *AssignExpression) Evaluate() (reflect.Value, error) {
 	} else if ins.FunctionCall != nil {
 		return ins.FunctionCall.Evaluate()
 	} else {
-		return reflect.ValueOf(nil), fmt.Errorf("no assignment or function call to evaluate")
+		return reflect.ValueOf(nil), errors.Errorf("no assignment or function call to evaluate")
 	}
 }

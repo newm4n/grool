@@ -1,7 +1,7 @@
 package model
 
 import (
-	"fmt"
+	"github.com/juju/errors"
 	"github.com/newm4n/grool/context"
 	"reflect"
 	"time"
@@ -28,25 +28,25 @@ func (ins *FunctionCall) Initialize(knowledgeContext *context.KnowledgeContext, 
 func (exp *FunctionCall) Evaluate() (reflect.Value, error) {
 	argumentValues, err := exp.FunctionArguments.EvaluateArguments()
 	if err != nil {
-		return reflect.ValueOf(nil), err
+		return reflect.ValueOf(nil), errors.Trace(err)
 	} else {
 		switch exp.FunctionName {
 		case "now":
 			return reflect.ValueOf(time.Now()), nil
 		case "isNil":
 			if len(argumentValues) != 1 {
-				return reflect.ValueOf(nil), fmt.Errorf("isNil function requires 1 parameter")
+				return reflect.ValueOf(nil), errors.Errorf("isNil function requires 1 parameter")
 			} else {
 				return reflect.ValueOf(argumentValues[0].IsNil()), nil
 			}
 		case "log":
 			if len(argumentValues) != 1 {
-				return reflect.ValueOf(nil), fmt.Errorf("log function requires 1 string parameter")
+				return reflect.ValueOf(nil), errors.Errorf("log function requires 1 string parameter")
 			} else {
 				return reflect.ValueOf(argumentValues[0].IsNil()), nil
 			}
 		default:
-			return reflect.ValueOf(nil), fmt.Errorf("unrecognized function %s", exp.FunctionName)
+			return reflect.ValueOf(nil), errors.Errorf("unrecognized function %s", exp.FunctionName)
 		}
 	}
 }

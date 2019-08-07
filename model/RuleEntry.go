@@ -1,6 +1,9 @@
 package model
 
-import "github.com/newm4n/grool/context"
+import (
+	"github.com/juju/errors"
+	"github.com/newm4n/grool/context"
+)
 
 type RuleEntry struct {
 	Salience         int64
@@ -35,7 +38,7 @@ func (ins *RuleEntry) Initialize(knowledgeContext *context.KnowledgeContext, rul
 func (re *RuleEntry) CanExecute() (bool, error) {
 	bol, err := re.WhenScope.ExecuteWhen()
 	if err != nil {
-		return false, err
+		return false, errors.Trace(err)
 	}
 	return bol, nil
 }

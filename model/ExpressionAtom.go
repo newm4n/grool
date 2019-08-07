@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"github.com/juju/errors"
 	"github.com/newm4n/grool/context"
 	"github.com/newm4n/grool/pkg"
 	"reflect"
@@ -29,11 +30,11 @@ func (exp *ExpressionAtom) Evaluate() (reflect.Value, error) {
 	} else {
 		lv, err := exp.ExpressionAtomLeft.Evaluate()
 		if err != nil {
-			return reflect.ValueOf(nil), err
+			return reflect.ValueOf(nil), errors.Trace(err)
 		}
 		rv, err := exp.ExpressionAtomRight.Evaluate()
 		if err != nil {
-			return reflect.ValueOf(nil), err
+			return reflect.ValueOf(nil), errors.Trace(err)
 		}
 		if lv.Kind() == reflect.String && rv.Kind() == reflect.String && exp.MathOperator == MathOperatorPlus {
 			return reflect.ValueOf(fmt.Sprintf("%s%s", lv.String(), rv.String())), nil
@@ -149,7 +150,7 @@ func (exp *ExpressionAtom) Evaluate() (reflect.Value, error) {
 					}
 				}
 			} else {
-				return reflect.ValueOf(nil), fmt.Errorf("math operation can only be applied to numerical data, int, uit or float")
+				return reflect.ValueOf(nil), errors.Errorf("math operation can only be applied to numerical data, int, uit or float")
 			}
 		}
 	}
@@ -181,7 +182,7 @@ func (ins *ExpressionAtom) Initialize(knowledgeContext *context.KnowledgeContext
 func (expr *ExpressionAtom) AcceptExpressionAtom(exprAtom *ExpressionAtom) error {
 	if expr.ExpressionAtomLeft != nil {
 		if expr.ExpressionAtomRight != nil {
-			return fmt.Errorf("expression alredy set twice")
+			return errors.Errorf("expression alredy set twice")
 		}
 		expr.ExpressionAtomRight = exprAtom
 	}
@@ -191,7 +192,7 @@ func (expr *ExpressionAtom) AcceptExpressionAtom(exprAtom *ExpressionAtom) error
 
 func (expr *ExpressionAtom) AcceptFunctionCall(funcCall *FunctionCall) error {
 	if expr.FunctionCall != nil {
-		return fmt.Errorf("functioncall alredy set")
+		return errors.Errorf("functioncall alredy set")
 	}
 	expr.FunctionCall = funcCall
 	return nil
@@ -202,7 +203,7 @@ func (expr *ExpressionAtom) AcceptVariable(name string) error {
 		expr.Variable = name
 		return nil
 	} else {
-		return fmt.Errorf("variable already defined")
+		return errors.Errorf("variable already defined")
 	}
 }
 
@@ -211,6 +212,6 @@ func (expr *ExpressionAtom) AcceptConstant(cons *Constant) error {
 		expr.Constant = cons
 		return nil
 	} else {
-		return fmt.Errorf("constant already defined")
+		return errors.Errorf("constant already defined")
 	}
 }

@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"github.com/juju/errors"
 	"github.com/newm4n/grool/context"
 	"reflect"
 )
@@ -37,18 +38,18 @@ func (assign *Assignment) AcceptVariable(name string) error {
 		assign.Variable = name
 		return nil
 	} else {
-		return fmt.Errorf("variable already defined")
+		return errors.Errorf("variable already defined")
 	}
 }
 
 func (ins *Assignment) Evaluate() (reflect.Value, error) {
 	v, err := ins.Expression.Evaluate()
 	if err != nil {
-		return reflect.ValueOf(nil), err
+		return reflect.ValueOf(nil), errors.Trace(err)
 	}
 	err = ins.dataCtx.SetValue(ins.Variable, v)
 	if err != nil {
-		return reflect.ValueOf(nil), err
+		return reflect.ValueOf(nil), errors.Trace(err)
 	}
 	return reflect.ValueOf(nil), nil
 }

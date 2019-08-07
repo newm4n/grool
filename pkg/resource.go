@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	"github.com/juju/errors"
 	"io/ioutil"
 	"net/http"
 )
@@ -26,7 +27,7 @@ func (res *FileResource) Load() ([]byte, error) {
 	} else {
 		data, err := ioutil.ReadFile(res.Path)
 		if err != nil {
-			return nil, err
+			return nil, errors.Trace(err)
 		}
 		res.Bytes = data
 		return res.Bytes, nil
@@ -64,12 +65,12 @@ func (res *UrlResource) Load() ([]byte, error) {
 	} else {
 		resp, err := http.Get(res.Url)
 		if err != nil {
-			return nil, err
+			return nil, errors.Trace(err)
 		}
 		defer resp.Body.Close()
 		data, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			return nil, err
+			return nil, errors.Trace(err)
 		}
 		res.Bytes = data
 		return res.Bytes, nil

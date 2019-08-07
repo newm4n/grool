@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"github.com/juju/errors"
 	"github.com/newm4n/grool/context"
 	"github.com/newm4n/grool/model"
 	"sort"
@@ -25,7 +26,7 @@ func (g *Grool) Execute(dataCtx *context.DataContext, knowledge *model.Knowledge
 		for _, v := range knowledge.RuleEntries {
 			can, err := v.CanExecute()
 			if err != nil {
-				return err
+				return errors.Trace(err)
 			}
 			if can {
 				runnable = append(runnable, v)
@@ -39,7 +40,7 @@ func (g *Grool) Execute(dataCtx *context.DataContext, knowledge *model.Knowledge
 			}
 			err := runnable[0].Execute()
 			if err != nil {
-				return err
+				return errors.Trace(err)
 			}
 		} else {
 			break

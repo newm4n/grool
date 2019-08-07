@@ -1,7 +1,7 @@
 package model
 
 import (
-	"fmt"
+	"github.com/juju/errors"
 	"github.com/newm4n/grool/context"
 	"reflect"
 )
@@ -29,7 +29,7 @@ func (ins *AssignExpressions) Evaluate() (reflect.Value, error) {
 	for _, v := range ins.ExpressionList {
 		i, err := v.Evaluate()
 		if err != nil {
-			return reflect.ValueOf(nil), fmt.Errorf("error evaluating assignment #%d", i)
+			return reflect.ValueOf(nil), errors.Errorf("error evaluating assignment #%d", i)
 		}
 	}
 	return reflect.ValueOf(nil), nil

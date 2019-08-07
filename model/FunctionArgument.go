@@ -1,6 +1,7 @@
 package model
 
 import (
+	"github.com/juju/errors"
 	"github.com/newm4n/grool/context"
 	"reflect"
 )
@@ -17,7 +18,7 @@ func (ins *FunctionArgument) EvaluateArguments() ([]reflect.Value, error) {
 	for i, v := range ins.Arguments {
 		rv, err := v.Evaluate()
 		if err != nil {
-			return retVal, err
+			return retVal, errors.Trace(err)
 		} else {
 			retVal[i] = rv
 		}

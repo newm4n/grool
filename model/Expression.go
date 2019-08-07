@@ -1,7 +1,7 @@
 package model
 
 import (
-	"fmt"
+	"github.com/juju/errors"
 	"github.com/newm4n/grool/context"
 	"reflect"
 )
@@ -35,7 +35,7 @@ func (ins *Expression) Initialize(knowledgeContext *context.KnowledgeContext, ru
 func (expr *Expression) AcceptExpression(expression *Expression) error {
 	if expr.LeftExpression != nil {
 		if expr.RightExpression != nil {
-			return fmt.Errorf("expression alredy set twice")
+			return errors.Errorf("expression alredy set twice")
 		}
 		expr.RightExpression = expression
 	}
@@ -49,11 +49,11 @@ func (expr *Expression) Evaluate() (reflect.Value, error) {
 	} else {
 		lv, err := expr.LeftExpression.Evaluate()
 		if err != nil {
-			return lv, err
+			return lv, errors.Trace(err)
 		}
 		rv, err := expr.RightExpression.Evaluate()
 		if err != nil {
-			return rv, err
+			return rv, errors.Trace(err)
 		}
 		if rv.Kind() == lv.Kind() && rv.Kind() == reflect.Bool {
 			if expr.LogicalOperator == LogicalOperatorAnd {
@@ -62,7 +62,7 @@ func (expr *Expression) Evaluate() (reflect.Value, error) {
 				return reflect.ValueOf(lv.Bool() || rv.Bool()), nil
 			}
 		} else {
-			return reflect.ValueOf(nil), fmt.Errorf("cannot apply logical for non boolean expression")
+			return reflect.ValueOf(nil), errors.Errorf("cannot apply logical for non boolean expression")
 		}
 	}
 }
