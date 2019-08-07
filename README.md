@@ -1,4 +1,4 @@
-#Grool
+# Grool
 ---
 
 ```
@@ -82,13 +82,13 @@ rule  <rule_name> <rule_description>
 }
 ```
 
-##Advantages of a Rule Engine
+## Advantages of a Rule Engine
 
-###Declarative Programming
+### Declarative Programming
 
 Rules make it easy to express solutions to difficult problems and get the solutions verified as well. Unlike codes, Rules are written in less complex language; Business Analysts can easily read and verify a set of rules.
 
-###Logic and Data Separation
+### Logic and Data Separation
 
 The data resides in the Domain Objects and the business logic resides in the Rules. Depending upon the kind of project, this kind of separation can be very advantageous.
 
@@ -107,7 +107,9 @@ Since business rules are actually treated as data. Adjusting the rule according 
 ## Loading GRL on to Knowledge
 
 ### From File
+
 ### From String or ByteArray
+
 ### From URL
 
 ## Preparing Facts
