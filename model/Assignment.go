@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/juju/errors"
 	"github.com/newm4n/grool/context"
+	log "github.com/sirupsen/logrus"
 	"reflect"
 )
 
@@ -45,10 +46,12 @@ func (assign *Assignment) AcceptVariable(name string) error {
 func (ins *Assignment) Evaluate() (reflect.Value, error) {
 	v, err := ins.Expression.Evaluate()
 	if err != nil {
+		log.Errorf("Evaluate Got error %v", err)
 		return reflect.ValueOf(nil), errors.Trace(err)
 	}
 	err = ins.dataCtx.SetValue(ins.Variable, v)
 	if err != nil {
+		log.Errorf("SetValue Got error %v", err)
 		return reflect.ValueOf(nil), errors.Trace(err)
 	}
 	return reflect.ValueOf(nil), nil

@@ -180,13 +180,13 @@ func (ins *ExpressionAtom) Initialize(knowledgeContext *context.KnowledgeContext
 }
 
 func (expr *ExpressionAtom) AcceptExpressionAtom(exprAtom *ExpressionAtom) error {
-	if expr.ExpressionAtomLeft != nil {
-		if expr.ExpressionAtomRight != nil {
-			return errors.Errorf("expression alredy set twice")
-		}
+	if expr.ExpressionAtomLeft == nil {
+		expr.ExpressionAtomLeft = exprAtom
+	} else if expr.ExpressionAtomRight == nil {
 		expr.ExpressionAtomRight = exprAtom
+	} else {
+		return errors.Errorf("expression alredy set twice")
 	}
-	expr.ExpressionAtomLeft = exprAtom
 	return nil
 }
 

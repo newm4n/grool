@@ -1,8 +1,8 @@
 package model
 
 var (
-	LogicalOperatorAnd = LogicalOperator(0)
-	LogicalOperatorOr  = LogicalOperator(1)
+	LogicalOperatorAnd = LogicalOperator(1)
+	LogicalOperatorOr  = LogicalOperator(2)
 )
 
 type LogicalOperator int

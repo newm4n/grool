@@ -30,14 +30,14 @@ func (ins *Predicate) Initialize(knowledgeContext *context.KnowledgeContext, rul
 	}
 }
 
-func (expr *Predicate) AcceptExpressionAtom(exprAtom *ExpressionAtom) error {
-	if expr.ExpressionAtomLeft != nil {
-		if expr.ExpressionAtomRight != nil {
-			return errors.Errorf("expression alredy set twice")
-		}
-		expr.ExpressionAtomRight = exprAtom
+func (pred *Predicate) AcceptExpressionAtom(exprAtom *ExpressionAtom) error {
+	if pred.ExpressionAtomLeft == nil {
+		pred.ExpressionAtomLeft = exprAtom
+	} else if pred.ExpressionAtomRight == nil {
+		pred.ExpressionAtomRight = exprAtom
+	} else {
+		return errors.Errorf("expression alredy set twice")
 	}
-	expr.ExpressionAtomLeft = exprAtom
 	return nil
 }
 

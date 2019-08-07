@@ -15,7 +15,8 @@ func NewDataContext() *DataContext {
 }
 
 type DataContext struct {
-	ObjectStore map[string]interface{}
+	ObjectStore         map[string]interface{}
+	VariableChangeCount uint64
 }
 
 func (ctx *DataContext) Add(key string, obj interface{}) {
@@ -34,16 +35,24 @@ func (ctx *DataContext) GetType(variable string) (reflect.Type, error) {
 func (ctx *DataContext) GetValue(variable string) (reflect.Value, error) {
 	varArray := strings.Split(variable, ".")
 	if val, ok := ctx.ObjectStore[varArray[0]]; ok {
-		return traceValue(val, varArray[1:])
+		vval, err := traceValue(val, varArray[1:])
+		if err != nil {
+			fmt.Printf("blah %s = %v\n", variable, vval)
+		}
+		return vval, err
 	} else {
 		return reflect.ValueOf(nil), fmt.Errorf("data context not found '%s'", varArray[0])
 	}
 }
 
-func (ctx *DataContext) SetValue(variable string, newValue interface{}) error {
+func (ctx *DataContext) SetValue(variable string, newValue reflect.Value) error {
 	varArray := strings.Split(variable, ".")
 	if val, ok := ctx.ObjectStore[varArray[0]]; ok {
-		return traceSetValue(val, varArray[1:], newValue)
+		err := traceSetValue(val, varArray[1:], newValue)
+		if err == nil {
+			ctx.VariableChangeCount++
+		}
+		return err
 	} else {
 		return errors.Errorf("data context not found '%s'", varArray[0])
 	}
@@ -77,9 +86,9 @@ func traceValue(obj interface{}, path []string) (reflect.Value, error) {
 	}
 }
 
-func traceSetValue(obj interface{}, path []string, newValue interface{}) error {
+func traceSetValue(obj interface{}, path []string, newValue reflect.Value) error {
 	if len(path) == 1 {
-		return pkg.SetAttributeInterface(obj, path[0], newValue)
+		return pkg.SetAttributeValue(obj, path[0], newValue)
 	} else if len(path) > 1 {
 		objVal, err := pkg.GetAttributeValue(obj, path[0])
 		if err != nil {

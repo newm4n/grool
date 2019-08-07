@@ -26,10 +26,10 @@ func (ins *AssignExpressions) Initialize(knowledgeContext *context.KnowledgeCont
 }
 
 func (ins *AssignExpressions) Evaluate() (reflect.Value, error) {
-	for _, v := range ins.ExpressionList {
-		i, err := v.Evaluate()
+	for idx, v := range ins.ExpressionList {
+		_, err := v.Evaluate()
 		if err != nil {
-			return reflect.ValueOf(nil), errors.Errorf("error evaluating assignment #%d", i)
+			return reflect.ValueOf(nil), errors.Errorf("error evaluating assignment #%d", idx)
 		}
 	}
 	return reflect.ValueOf(nil), nil

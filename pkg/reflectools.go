@@ -1,14 +1,14 @@
 package pkg
 
 import (
-	"fmt"
+	"github.com/juju/errors"
 	"reflect"
 	"time"
 )
 
 func GetFunctionList(obj interface{}) ([]string, error) {
 	if !IsStruct(obj) {
-		return nil, fmt.Errorf("param is not a struct")
+		return nil, errors.Errorf("param is not a struct")
 	}
 	ret := make([]string, 0)
 
@@ -21,7 +21,7 @@ func GetFunctionList(obj interface{}) ([]string, error) {
 
 func GetFunctionParameterTypes(obj interface{}, methodName string) ([]reflect.Type, error) {
 	if !IsStruct(obj) {
-		return nil, fmt.Errorf("param is not a struct")
+		return nil, errors.Errorf("param is not a struct")
 	}
 	ret := make([]reflect.Type, 0)
 	objType := reflect.TypeOf(obj)
@@ -33,14 +33,14 @@ func GetFunctionParameterTypes(obj interface{}, methodName string) ([]reflect.Ty
 			ret = append(ret, x.In(i))
 		}
 	} else {
-		return nil, fmt.Errorf("function %s not found", methodName)
+		return nil, errors.Errorf("function %s not found", methodName)
 	}
 	return ret, nil
 }
 
 func GetFunctionReturnTypes(obj interface{}, methodName string) ([]reflect.Type, error) {
 	if !IsStruct(obj) {
-		return nil, fmt.Errorf("param is not a struct")
+		return nil, errors.Errorf("param is not a struct")
 	}
 	ret := make([]reflect.Type, 0)
 	objType := reflect.TypeOf(obj)
@@ -52,14 +52,14 @@ func GetFunctionReturnTypes(obj interface{}, methodName string) ([]reflect.Type,
 			ret = append(ret, x.Out(i))
 		}
 	} else {
-		return nil, fmt.Errorf("function %s not found", methodName)
+		return nil, errors.Errorf("function %s not found", methodName)
 	}
 	return ret, nil
 }
 
 func InvokeFunction(obj interface{}, methodName string, param []interface{}) ([]interface{}, error) {
 	if !IsStruct(obj) {
-		return nil, fmt.Errorf("param is not a struct")
+		return nil, errors.Errorf("param is not a struct")
 	}
 	objVal := reflect.ValueOf(obj)
 	funcVal := objVal.MethodByName(methodName)
@@ -148,7 +148,7 @@ func ValueToInterface(v reflect.Value) interface{} {
 
 func GetAttributeList(obj interface{}) ([]string, error) {
 	if !IsStruct(obj) {
-		return nil, fmt.Errorf("param is not a struct")
+		return nil, errors.Errorf("param is not a struct")
 	}
 	strRet := make([]string, 0)
 	v := reflect.ValueOf(obj)
@@ -161,10 +161,10 @@ func GetAttributeList(obj interface{}) ([]string, error) {
 
 func GetAttributeValue(obj interface{}, fieldName string) (reflect.Value, error) {
 	if !IsStruct(obj) {
-		return reflect.ValueOf(nil), fmt.Errorf("param is not a struct")
+		return reflect.ValueOf(nil), errors.Errorf("param is not a struct")
 	}
 	if !IsValidField(obj, fieldName) {
-		return reflect.ValueOf(nil), fmt.Errorf("attribute named %s not exist in struct", fieldName)
+		return reflect.ValueOf(nil), errors.Errorf("attribute named %s not exist in struct", fieldName)
 	}
 	structval := reflect.ValueOf(obj)
 	var attrVal reflect.Value
@@ -187,10 +187,10 @@ func GetAttributeInterface(obj interface{}, fieldName string) (interface{}, erro
 
 func GetAttributeType(obj interface{}, fieldName string) (reflect.Type, error) {
 	if !IsStruct(obj) {
-		return nil, fmt.Errorf("param is not a struct")
+		return nil, errors.Errorf("param is not a struct")
 	}
 	if !IsValidField(obj, fieldName) {
-		return nil, fmt.Errorf("attribute named %s not exist in struct", fieldName)
+		return nil, errors.Errorf("attribute named %s not exist in struct", fieldName)
 	}
 	structval := reflect.ValueOf(obj)
 	var attrVal reflect.Value
@@ -204,10 +204,10 @@ func GetAttributeType(obj interface{}, fieldName string) (reflect.Type, error) {
 
 func SetAttributeValue(obj interface{}, fieldName string, value reflect.Value) error {
 	if !IsStruct(obj) {
-		return fmt.Errorf("param is not a struct")
+		return errors.Errorf("param is not a struct")
 	}
 	if !IsValidField(obj, fieldName) {
-		return fmt.Errorf("attribute named %s not exist in struct", fieldName)
+		return errors.Errorf("attribute named %s not exist in struct", fieldName)
 	}
 	var fieldVal reflect.Value
 	objType := reflect.TypeOf(obj)
@@ -219,7 +219,7 @@ func SetAttributeValue(obj interface{}, fieldName string, value reflect.Value) e
 			fieldVal = objVal.Elem().FieldByName(fieldName)
 		} else {
 			// If its not point to struct ... return error
-			return fmt.Errorf("object is pointing a non struct. %s", objType.Elem().Kind().String())
+			return errors.Errorf("object is pointing a non struct. %s", objType.Elem().Kind().String())
 		}
 	} else {
 		// If Obj param is not a pointer.
@@ -228,13 +228,13 @@ func SetAttributeValue(obj interface{}, fieldName string, value reflect.Value) e
 			fieldVal = objVal.FieldByName(fieldName)
 		} else {
 			// If its not a struct ... return error
-			return fmt.Errorf("object is not a struct. %s", objType.Kind().String())
+			return errors.Errorf("object is not a struct. %s", objType.Kind().String())
 		}
 	}
 
 	// Check source data type compatibility with the field type
-	if fieldVal.Type() != value.Type() { // pointer check
-		return fmt.Errorf("can not assign type %s to %s", value.Type().String(), fieldVal.Type().String())
+	if GetBaseKind(fieldVal) != GetBaseKind(value) { // pointer check
+		return errors.Errorf("can not assign type %s to %s", value.Type().String(), fieldVal.Type().String())
 	}
 	if fieldVal.CanSet() {
 		switch fieldVal.Type().Kind() {
@@ -258,31 +258,31 @@ func SetAttributeValue(obj interface{}, fieldName string, value reflect.Value) e
 			break
 		case reflect.Slice:
 			// todo Add setter for slice type field
-			return fmt.Errorf("unsupported operation")
+			return errors.Errorf("unsupported operation")
 		case reflect.Array:
 			// todo Add setter for array type field
-			return fmt.Errorf("unsupported operation")
+			return errors.Errorf("unsupported operation")
 		case reflect.Map:
 			// todo Add setter for map type field
-			return fmt.Errorf("unsupported operation")
+			return errors.Errorf("unsupported operation")
 		case reflect.Struct:
 			// todo Add setter for slice type field
-			return fmt.Errorf("unsupported operation")
+			return errors.Errorf("unsupported operation")
 		default:
 			return nil
 		}
 	} else {
-		return fmt.Errorf("can not set field")
+		return errors.Errorf("can not set field")
 	}
 	return nil
 }
 
 func SetAttributeInterface(obj interface{}, fieldName string, value interface{}) error {
 	if !IsStruct(obj) {
-		return fmt.Errorf("param is not a struct")
+		return errors.Errorf("param is not a struct")
 	}
 	if !IsValidField(obj, fieldName) {
-		return fmt.Errorf("attribute named %s not exist in struct", fieldName)
+		return errors.Errorf("attribute named %s not exist in struct", fieldName)
 	}
 
 	return SetAttributeValue(obj, fieldName, reflect.ValueOf(value))
@@ -290,10 +290,10 @@ func SetAttributeInterface(obj interface{}, fieldName string, value interface{})
 
 func IsAttributeArray(obj interface{}, fieldName string) (bool, error) {
 	if !IsStruct(obj) {
-		return false, fmt.Errorf("param is not a struct")
+		return false, errors.Errorf("param is not a struct")
 	}
 	if !IsValidField(obj, fieldName) {
-		return false, fmt.Errorf("attribute named %s not exist in struct", fieldName)
+		return false, errors.Errorf("attribute named %s not exist in struct", fieldName)
 	}
 	objVal := reflect.ValueOf(obj)
 	fieldVal := objVal.Elem().FieldByName(fieldName)
@@ -302,10 +302,10 @@ func IsAttributeArray(obj interface{}, fieldName string) (bool, error) {
 
 func IsAttributeMap(obj interface{}, fieldName string) (bool, error) {
 	if !IsStruct(obj) {
-		return false, fmt.Errorf("param is not a struct")
+		return false, errors.Errorf("param is not a struct")
 	}
 	if !IsValidField(obj, fieldName) {
-		return false, fmt.Errorf("attribute named %s not exist in struct", fieldName)
+		return false, errors.Errorf("attribute named %s not exist in struct", fieldName)
 	}
 	objVal := reflect.ValueOf(obj)
 	fieldVal := objVal.Elem().FieldByName(fieldName)
@@ -314,10 +314,10 @@ func IsAttributeMap(obj interface{}, fieldName string) (bool, error) {
 
 func IsAttributeNil(obj interface{}, fieldName string) (bool, error) {
 	if !IsStruct(obj) {
-		return false, fmt.Errorf("param is not a struct")
+		return false, errors.Errorf("param is not a struct")
 	}
 	if !IsValidField(obj, fieldName) {
-		return false, fmt.Errorf("attribute named %s not exist in struct", fieldName)
+		return false, errors.Errorf("attribute named %s not exist in struct", fieldName)
 	}
 	objVal := reflect.ValueOf(obj)
 	fieldVal := objVal.Elem().FieldByName(fieldName)

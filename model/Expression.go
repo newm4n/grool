@@ -33,13 +33,13 @@ func (ins *Expression) Initialize(knowledgeContext *context.KnowledgeContext, ru
 }
 
 func (expr *Expression) AcceptExpression(expression *Expression) error {
-	if expr.LeftExpression != nil {
-		if expr.RightExpression != nil {
-			return errors.Errorf("expression alredy set twice")
-		}
+	if expr.LeftExpression == nil {
+		expr.LeftExpression = expression
+	} else if expr.RightExpression == nil {
 		expr.RightExpression = expression
+	} else {
+		return errors.Errorf("expression alredy set twice")
 	}
-	expr.LeftExpression = expression
 	return nil
 }
 

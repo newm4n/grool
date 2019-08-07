@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/antlr/antlr4/runtime/Go/antlr"
 	"github.com/newm4n/grool/antlr/parser"
+	"github.com/newm4n/grool/model"
 	"io/ioutil"
 	"reflect"
 	"testing"
@@ -27,8 +28,6 @@ func TestLexer(t *testing.T) {
 			if nt.GetTokenType() == antlr.TokenEOF {
 				break
 			}
-			output := fmt.Sprintf("%s (%q)\n", lexer.SymbolicNames[nt.GetTokenType()], nt.GetText())
-			fmt.Print(output)
 		}
 	}
 
@@ -45,11 +44,11 @@ func TestParser(t *testing.T) {
 		lexer := parser.NewgroolLexer(is)
 		stream := antlr.NewCommonTokenStream(lexer, antlr.TokenDefaultChannel)
 
-		listener := NewGroolParserListener()
+		listener := NewGroolParserListener(model.NewKnowledgeBase())
 
-		parser := parser.NewgroolParser(stream)
-		parser.BuildParseTrees = true
-		antlr.ParseTreeWalkerDefault.Walk(listener, parser.Root())
+		psr := parser.NewgroolParser(stream)
+		psr.BuildParseTrees = true
+		antlr.ParseTreeWalkerDefault.Walk(listener, psr.Root())
 
 		for _, e := range listener.ParseErrors {
 			t.Log(e)

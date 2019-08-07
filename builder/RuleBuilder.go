@@ -7,6 +7,7 @@ import (
 	"github.com/newm4n/grool/antlr/parser"
 	"github.com/newm4n/grool/model"
 	"github.com/newm4n/grool/pkg"
+	log "github.com/sirupsen/logrus"
 )
 
 func NewRuleBuilder(KnowledgeBase *model.KnowledgeBase) *RuleBuilder {
@@ -17,6 +18,21 @@ func NewRuleBuilder(KnowledgeBase *model.KnowledgeBase) *RuleBuilder {
 
 type RuleBuilder struct {
 	KnowledgeBase *model.KnowledgeBase
+}
+
+func (builder *RuleBuilder) MustBuildRuleFromResources(resource []pkg.Resource) {
+	for _, v := range resource {
+		err := builder.BuildRuleFromResource(v)
+		if err != nil {
+			panic(err)
+		}
+	}
+}
+
+func (builder *RuleBuilder) MustBuildRuleFromResource(resource pkg.Resource) {
+	if err := builder.BuildRuleFromResource(resource); err != nil {
+		panic(err)
+	}
 }
 
 func (builder *RuleBuilder) BuildRuleFromResources(resource []pkg.Resource) error {
@@ -40,20 +56,17 @@ func (builder *RuleBuilder) BuildRuleFromResource(resource pkg.Resource) error {
 	lexer := parser.NewgroolLexer(is)
 	stream := antlr.NewCommonTokenStream(lexer, antlr.TokenDefaultChannel)
 
-	listener := antlr2.NewGroolParserListener()
+	listener := antlr2.NewGroolParserListener(builder.KnowledgeBase)
 
-	parser := parser.NewgroolParser(stream)
-	parser.BuildParseTrees = true
-	antlr.ParseTreeWalkerDefault.Walk(listener, parser.Root())
+	psr := parser.NewgroolParser(stream)
+	psr.BuildParseTrees = true
+	antlr.ParseTreeWalkerDefault.Walk(listener, psr.Root())
 
 	if len(listener.ParseErrors) > 0 {
+		log.Errorf("Loading rule resource : %s failed. Got %d errors. 1st error : %v", resource.String(), len(listener.ParseErrors), listener.ParseErrors[0])
 		return errors.Errorf("error were found before builder bailing out. %d errors. 1st error : %v", len(listener.ParseErrors), listener.ParseErrors[0])
 	} else {
-		if len(listener.RuleEntries) > 0 {
-			for k, v := range listener.RuleEntries {
-				builder.KnowledgeBase.RuleEntries[k] = v
-			}
-		}
+		log.Debugf("Loading rule resource : %s success", resource.String())
+		return nil
 	}
-	return nil
 }

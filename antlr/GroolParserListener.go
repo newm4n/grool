@@ -1,29 +1,22 @@
 package antlr
 
 import (
-	"fmt"
 	"github.com/antlr/antlr4/runtime/Go/antlr"
 	"github.com/golang-collections/collections/stack"
+	"github.com/juju/errors"
 	"github.com/newm4n/grool/antlr/parser"
 	"github.com/newm4n/grool/model"
-	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"reflect"
 	"strconv"
 	"strings"
 )
 
-var (
-	log = logrus.WithFields(logrus.Fields{
-		"Package": "antlr",
-		"Struct":  "GroolParserListener",
-	})
-)
-
-func NewGroolParserListener() *GroolParserListener {
+func NewGroolParserListener(kbase *model.KnowledgeBase) *GroolParserListener {
 	return &GroolParserListener{
-		Stack:       stack.New(),
-		RuleEntries: make(map[string]*model.RuleEntry),
-		ParseErrors: make([]error, 0),
+		Stack:         stack.New(),
+		KnowledgeBase: kbase,
+		ParseErrors:   make([]error, 0),
 	}
 }
 
@@ -31,8 +24,9 @@ type GroolParserListener struct {
 	parser.BasegroolListener
 	ParseErrors []error
 
-	RuleEntries map[string]*model.RuleEntry
-	Stack       *stack.Stack
+	//RuleEntries map[string]*model.RuleEntry
+	KnowledgeBase *model.KnowledgeBase
+	Stack         *stack.Stack
 }
 
 func (s *GroolParserListener) AddError(e error) {
@@ -76,12 +70,12 @@ func (s *GroolParserListener) ExitRuleEntry(ctx *parser.RuleEntryContext) {
 		return
 	}
 	// check for duplicate engine.
-	if _, ok := s.RuleEntries[entry.RuleName]; ok {
-		s.AddError(fmt.Errorf("duplicate engine name '%s'", entry.RuleName))
+	if _, ok := s.KnowledgeBase.RuleEntries[entry.RuleName]; ok {
+		s.AddError(errors.Errorf("duplicate rule entry name '%s'", entry.RuleName))
 		return
 	}
 	// if everything ok, add the engine entry.
-	s.RuleEntries[entry.RuleName] = entry
+	s.KnowledgeBase.RuleEntries[entry.RuleName] = entry
 }
 
 // EnterRuleName is called when production ruleName is entered.
@@ -359,7 +353,7 @@ func (s *GroolParserListener) ExitLogicalOperator(ctx *parser.LogicalOperatorCon
 	} else if ctx.GetText() == "||" {
 		expr.LogicalOperator = model.LogicalOperatorOr
 	} else {
-		s.AddError(fmt.Errorf("unknown logical operator %s", ctx.GetText()))
+		s.AddError(errors.Errorf("unknown logical operator %s", ctx.GetText()))
 	}
 }
 
@@ -373,6 +367,7 @@ func (s *GroolParserListener) ExitVariable(ctx *parser.VariableContext) {
 		return
 	}
 	varName := ctx.GetText()
+	//fmt.Println("Variable Name", varName)
 	// return immediately when there's an error
 	if len(s.ParseErrors) > 0 {
 		return
@@ -404,7 +399,7 @@ func (s *GroolParserListener) ExitMathOperator(ctx *parser.MathOperatorContext) 
 	} else if ctx.GetText() == "*" {
 		expr.MathOperator = model.MathOperatorMul
 	} else {
-		s.AddError(fmt.Errorf("unknown mathematic operator %s", ctx.GetText()))
+		s.AddError(errors.Errorf("unknown mathematic operator %s", ctx.GetText()))
 	}
 }
 
@@ -431,7 +426,7 @@ func (s *GroolParserListener) ExitComparisonOperator(ctx *parser.ComparisonOpera
 	} else if ctx.GetText() == ">=" {
 		predicate.ComparisonOperator = model.ComparisonOperatorGTE
 	} else {
-		s.AddError(fmt.Errorf("unknown comparison operator %s", ctx.GetText()))
+		s.AddError(errors.Errorf("unknown comparison operator %s", ctx.GetText()))
 	}
 }
 
@@ -479,7 +474,7 @@ func (s *GroolParserListener) ExitDecimalLiteral(ctx *parser.DecimalLiteralConte
 	decHold := s.Stack.Peek().(model.DecimalHolder)
 	i64, err := strconv.ParseInt(ctx.GetText(), 10, 64)
 	if err != nil {
-		s.AddError(fmt.Errorf("string to integer conversion error. literal is not a decimal '%s'", ctx.GetText()))
+		s.AddError(errors.Errorf("string to integer conversion error. literal is not a decimal '%s'", ctx.GetText()))
 	} else {
 		decHold.AcceptDecimal(i64)
 		//cons.ConstantValue = reflect.ValueOf(i64)
@@ -516,7 +511,7 @@ func (s *GroolParserListener) ExitBooleanLiteral(ctx *parser.BooleanLiteralConte
 	} else if val == "false" {
 		cons.ConstantValue = reflect.ValueOf(false)
 	} else {
-		s.AddError(fmt.Errorf("unknown boolear literal '%s'", ctx.GetText()))
+		s.AddError(errors.Errorf("unknown boolear literal '%s'", ctx.GetText()))
 	}
 }
 
@@ -532,7 +527,7 @@ func (s *GroolParserListener) ExitRealLiteral(ctx *parser.RealLiteralContext) {
 	cons := s.Stack.Peek().(*model.Constant)
 	flo, err := strconv.ParseFloat(ctx.GetText(), 64)
 	if err != nil {
-		s.AddError(fmt.Errorf("string to float conversion error. String is not real type '%s'", ctx.GetText()))
+		s.AddError(errors.Errorf("string to float conversion error. String is not real type '%s'", ctx.GetText()))
 		return
 	} else {
 		cons.ConstantValue = reflect.ValueOf(flo)
