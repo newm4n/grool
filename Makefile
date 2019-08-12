@@ -7,7 +7,4 @@ build:
 	go build ./...
 
 test: build
-	go test ./... -v -coverprofile cp.out
-
-coverage: test
-    go tool cover -html=cp.out
+	go test ./... -v -cover
