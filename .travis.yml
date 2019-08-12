@@ -1,9 +1,6 @@
 language: go
 
 go:
-  - 1.x
-  - "1.12"
   - 1.12.x
-  - master
 
-script: go test -v ./...
+script: make test
