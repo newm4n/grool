@@ -41,6 +41,28 @@ func (exp *FunctionCall) Evaluate() (reflect.Value, error) {
 	switch exp.FunctionName {
 	case "now":
 		return reflect.ValueOf(time.Now()), nil
+	case "makeTime":
+		if len(argumentValues) != 6 {
+			return reflect.ValueOf(nil), errors.Errorf("makeTime function requires 6 parameter")
+		} else {
+			if pkg.GetBaseKind(argumentValues[0]) != reflect.Int64 ||
+				pkg.GetBaseKind(argumentValues[1]) != reflect.Int64 ||
+				pkg.GetBaseKind(argumentValues[2]) != reflect.Int64 ||
+				pkg.GetBaseKind(argumentValues[3]) != reflect.Int64 ||
+				pkg.GetBaseKind(argumentValues[4]) != reflect.Int64 ||
+				pkg.GetBaseKind(argumentValues[5]) != reflect.Int64 {
+				return reflect.ValueOf(nil), errors.Errorf("makeTime should follow makeTime(int,int,int,int,int,int) signature")
+			} else {
+				return reflect.ValueOf(time.Date(
+					int(argumentValues[0].Int()),
+					time.Month(argumentValues[0].Int()),
+					int(argumentValues[0].Int()),
+					int(argumentValues[0].Int()),
+					int(argumentValues[0].Int()),
+					int(argumentValues[0].Int()),
+					0, time.Local)), nil
+			}
+		}
 	case "isNil":
 		if len(argumentValues) != 1 {
 			return reflect.ValueOf(nil), errors.Errorf("isNil function requires 1 parameter")
