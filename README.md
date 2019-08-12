@@ -34,8 +34,8 @@ rule SpeedUp "When testcar is speeding up we keep increase the speed." salience 
     when
         TestCar.SpeedUp == true && TestCar.Speed < TestCar.MaxSpeed
     then
-		TestCar.Speed = TestCar.Speed + TestCar.SpeedIncrement;
-		DistanceRecord.TotalDistance = DistanceRecord.TotalDistance + TestCar.Speed;
+        TestCar.Speed = TestCar.Speed + TestCar.SpeedIncrement;
+        DistanceRecord.TotalDistance = DistanceRecord.TotalDistance + TestCar.Speed;
 }
 ```
 

@@ -60,6 +60,11 @@ expressionAtom
     | variable
     | left=expressionAtom mathOperator right=expressionAtom
     | functionCall
+    | methodCall
+    ;
+
+methodCall
+    : DOTTEDNAME '(' functionArgs? ')'
     ;
 
 functionCall
@@ -67,10 +72,10 @@ functionCall
     ;
 
 functionArgs
-    : (constant | variable | functionCall | expression)
+    : (constant | variable | functionCall | methodCall | expression)
     (
       ','
-      (constant | variable | functionCall | expression)
+      (constant | variable | functionCall | methodCall | expression)
     )*
     ;
 
