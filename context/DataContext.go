@@ -25,7 +25,7 @@ func (ctx *DataContext) Add(key string, obj interface{}) {
 
 func (ctx *DataContext) ExecMethod(methodName string, args []reflect.Value) (reflect.Value, error) {
 	// todo trace and invoke method
-	return reflect.ValueOf(nil), nils
+	return reflect.ValueOf(nil), nil
 }
 
 func (ctx *DataContext) GetType(variable string) (reflect.Type, error) {
