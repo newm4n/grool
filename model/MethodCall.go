@@ -14,33 +14,33 @@ type MethodCall struct {
 	dataCtx          *context.DataContext
 }
 
-func (ins *MethodCall) Initialize(knowledgeContext *context.KnowledgeContext, ruleCtx *context.RuleContext, dataCtx *context.DataContext) {
-	ins.knowledgeContext = knowledgeContext
-	ins.ruleCtx = ruleCtx
-	ins.dataCtx = dataCtx
+func (methCall *MethodCall) Initialize(knowledgeContext *context.KnowledgeContext, ruleCtx *context.RuleContext, dataCtx *context.DataContext) {
+	methCall.knowledgeContext = knowledgeContext
+	methCall.ruleCtx = ruleCtx
+	methCall.dataCtx = dataCtx
 
-	if ins.MethodArguments != nil {
-		ins.MethodArguments.Initialize(knowledgeContext, ruleCtx, dataCtx)
+	if methCall.MethodArguments != nil {
+		methCall.MethodArguments.Initialize(knowledgeContext, ruleCtx, dataCtx)
 	}
 }
 
-func (ins *MethodCall) AcceptFunctionArgument(funcArg *FunctionArgument) error {
-	ins.MethodArguments = funcArg
+func (methCall *MethodCall) AcceptFunctionArgument(funcArg *FunctionArgument) error {
+	methCall.MethodArguments = funcArg
 	return nil
 }
 
 // Evaluate the object graph against underlined context or execute evaluation in the sub graph.
-func (exp *MethodCall) Evaluate() (reflect.Value, error) {
+func (methCall *MethodCall) Evaluate() (reflect.Value, error) {
 	var argumentValues []reflect.Value
-	if exp.MethodArguments == nil {
+	if methCall.MethodArguments == nil {
 		argumentValues = make([]reflect.Value, 0)
 	} else {
-		av, err := exp.MethodArguments.EvaluateArguments()
+		av, err := methCall.MethodArguments.EvaluateArguments()
 		if err != nil {
 			return reflect.ValueOf(nil), errors.Trace(err)
 		}
 		argumentValues = av
 	}
 
-	return exp.dataCtx.ExecMethod(exp.MethodName, argumentValues)
+	return methCall.dataCtx.ExecMethod(methCall.MethodName, argumentValues)
 }

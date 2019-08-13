@@ -15,26 +15,26 @@ type WhenScope struct {
 	dataCtx          *context.DataContext
 }
 
-func (ins *WhenScope) Initialize(knowledgeContext *context.KnowledgeContext, ruleCtx *context.RuleContext, dataCtx *context.DataContext) {
-	ins.knowledgeContext = knowledgeContext
-	ins.ruleCtx = ruleCtx
-	ins.dataCtx = dataCtx
+func (when *WhenScope) Initialize(knowledgeContext *context.KnowledgeContext, ruleCtx *context.RuleContext, dataCtx *context.DataContext) {
+	when.knowledgeContext = knowledgeContext
+	when.ruleCtx = ruleCtx
+	when.dataCtx = dataCtx
 
-	if ins.Expression != nil {
-		ins.Expression.Initialize(knowledgeContext, ruleCtx, dataCtx)
+	if when.Expression != nil {
+		when.Expression.Initialize(knowledgeContext, ruleCtx, dataCtx)
 	}
 }
 
-func (ws *WhenScope) AcceptExpression(expression *Expression) error {
-	if ws.Expression != nil {
+func (when *WhenScope) AcceptExpression(expression *Expression) error {
+	if when.Expression != nil {
 		return fmt.Errorf("expression were set twice in when scope")
 	}
-	ws.Expression = expression
+	when.Expression = expression
 	return nil
 }
 
-func (ws *WhenScope) ExecuteWhen() (bool, error) {
-	val, err := ws.Expression.Evaluate()
+func (when *WhenScope) ExecuteWhen() (bool, error) {
+	val, err := when.Expression.Evaluate()
 	if err != nil {
 		return false, errors.Trace(err)
 	} else {

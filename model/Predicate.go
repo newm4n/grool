@@ -17,24 +17,24 @@ type Predicate struct {
 	dataCtx             *context.DataContext
 }
 
-func (ins *Predicate) Initialize(knowledgeContext *context.KnowledgeContext, ruleCtx *context.RuleContext, dataCtx *context.DataContext) {
-	ins.knowledgeContext = knowledgeContext
-	ins.ruleCtx = ruleCtx
-	ins.dataCtx = dataCtx
+func (prdct *Predicate) Initialize(knowledgeContext *context.KnowledgeContext, ruleCtx *context.RuleContext, dataCtx *context.DataContext) {
+	prdct.knowledgeContext = knowledgeContext
+	prdct.ruleCtx = ruleCtx
+	prdct.dataCtx = dataCtx
 
-	if ins.ExpressionAtomLeft != nil {
-		ins.ExpressionAtomLeft.Initialize(knowledgeContext, ruleCtx, dataCtx)
+	if prdct.ExpressionAtomLeft != nil {
+		prdct.ExpressionAtomLeft.Initialize(knowledgeContext, ruleCtx, dataCtx)
 	}
-	if ins.ExpressionAtomRight != nil {
-		ins.ExpressionAtomRight.Initialize(knowledgeContext, ruleCtx, dataCtx)
+	if prdct.ExpressionAtomRight != nil {
+		prdct.ExpressionAtomRight.Initialize(knowledgeContext, ruleCtx, dataCtx)
 	}
 }
 
-func (pred *Predicate) AcceptExpressionAtom(exprAtom *ExpressionAtom) error {
-	if pred.ExpressionAtomLeft == nil {
-		pred.ExpressionAtomLeft = exprAtom
-	} else if pred.ExpressionAtomRight == nil {
-		pred.ExpressionAtomRight = exprAtom
+func (prdct *Predicate) AcceptExpressionAtom(exprAtom *ExpressionAtom) error {
+	if prdct.ExpressionAtomLeft == nil {
+		prdct.ExpressionAtomLeft = exprAtom
+	} else if prdct.ExpressionAtomRight == nil {
+		prdct.ExpressionAtomRight = exprAtom
 	} else {
 		return errors.Errorf("expression alredy set twice")
 	}
@@ -42,20 +42,20 @@ func (pred *Predicate) AcceptExpressionAtom(exprAtom *ExpressionAtom) error {
 }
 
 // Evaluate the object graph against underlined context or execute evaluation in the sub graph.
-func (pre *Predicate) Evaluate() (reflect.Value, error) {
-	if pre.ExpressionAtomRight == nil {
-		return pre.ExpressionAtomLeft.Evaluate()
+func (prdct *Predicate) Evaluate() (reflect.Value, error) {
+	if prdct.ExpressionAtomRight == nil {
+		return prdct.ExpressionAtomLeft.Evaluate()
 	} else {
-		lv, err := pre.ExpressionAtomLeft.Evaluate()
+		lv, err := prdct.ExpressionAtomLeft.Evaluate()
 		if err != nil {
 			return reflect.ValueOf(nil), errors.Trace(err)
 		}
-		rv, err := pre.ExpressionAtomRight.Evaluate()
+		rv, err := prdct.ExpressionAtomRight.Evaluate()
 		if err != nil {
 			return reflect.ValueOf(nil), errors.Trace(err)
 		}
-		if lv.Kind() == rv.Kind() && (pre.ComparisonOperator == ComparisonOperatorEQ || pre.ComparisonOperator == ComparisonOperatorNEQ) {
-			if pre.ComparisonOperator == ComparisonOperatorEQ {
+		if lv.Kind() == rv.Kind() && (prdct.ComparisonOperator == ComparisonOperatorEQ || prdct.ComparisonOperator == ComparisonOperatorNEQ) {
+			if prdct.ComparisonOperator == ComparisonOperatorEQ {
 				switch lv.Kind() {
 				case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 					return reflect.ValueOf(lv.Int() == rv.Int()), nil
@@ -95,7 +95,7 @@ func (pre *Predicate) Evaluate() (reflect.Value, error) {
 		} else if lv.Type().String() == "time.Time" && rv.Type().String() == "time.Time" {
 			tl := pkg.ValueToInterface(lv).(time.Time)
 			tr := pkg.ValueToInterface(rv).(time.Time)
-			switch pre.ComparisonOperator {
+			switch prdct.ComparisonOperator {
 			case ComparisonOperatorEQ:
 				return reflect.ValueOf(tl.Equal(tr)), nil
 			case ComparisonOperatorNEQ:
@@ -129,7 +129,7 @@ func (pre *Predicate) Evaluate() (reflect.Value, error) {
 			} else {
 				return reflect.ValueOf(nil), errors.Errorf("comparison operator can only between strings, time or numbers")
 			}
-			switch pre.ComparisonOperator {
+			switch prdct.ComparisonOperator {
 			case ComparisonOperatorEQ:
 				return reflect.ValueOf(lf == rf), nil
 			case ComparisonOperatorNEQ:

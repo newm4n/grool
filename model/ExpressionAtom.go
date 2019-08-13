@@ -21,23 +21,23 @@ type ExpressionAtom struct {
 }
 
 // Evaluate the object graph against underlined context or execute evaluation in the sub graph.
-func (exp *ExpressionAtom) Evaluate() (reflect.Value, error) {
-	if len(exp.Variable) > 0 {
-		return exp.dataCtx.GetValue(exp.Variable)
-	} else if exp.Constant != nil {
-		return exp.Constant.Evaluate()
-	} else if exp.FunctionCall != nil {
-		return exp.FunctionCall.Evaluate()
+func (exprAtm *ExpressionAtom) Evaluate() (reflect.Value, error) {
+	if len(exprAtm.Variable) > 0 {
+		return exprAtm.dataCtx.GetValue(exprAtm.Variable)
+	} else if exprAtm.Constant != nil {
+		return exprAtm.Constant.Evaluate()
+	} else if exprAtm.FunctionCall != nil {
+		return exprAtm.FunctionCall.Evaluate()
 	} else {
-		lv, err := exp.ExpressionAtomLeft.Evaluate()
+		lv, err := exprAtm.ExpressionAtomLeft.Evaluate()
 		if err != nil {
 			return reflect.ValueOf(nil), errors.Trace(err)
 		}
-		rv, err := exp.ExpressionAtomRight.Evaluate()
+		rv, err := exprAtm.ExpressionAtomRight.Evaluate()
 		if err != nil {
 			return reflect.ValueOf(nil), errors.Trace(err)
 		}
-		switch exp.MathOperator {
+		switch exprAtm.MathOperator {
 		case MathOperatorPlus:
 			return pkg.ValueAdd(lv, rv)
 		case MathOperatorMinus:
@@ -51,71 +51,71 @@ func (exp *ExpressionAtom) Evaluate() (reflect.Value, error) {
 	}
 }
 
-func (ins *ExpressionAtom) Initialize(knowledgeContext *context.KnowledgeContext, ruleCtx *context.RuleContext, dataCtx *context.DataContext) {
-	ins.knowledgeContext = knowledgeContext
-	ins.ruleCtx = ruleCtx
-	ins.dataCtx = dataCtx
+func (exprAtm *ExpressionAtom) Initialize(knowledgeContext *context.KnowledgeContext, ruleCtx *context.RuleContext, dataCtx *context.DataContext) {
+	exprAtm.knowledgeContext = knowledgeContext
+	exprAtm.ruleCtx = ruleCtx
+	exprAtm.dataCtx = dataCtx
 
-	if ins.ExpressionAtomLeft != nil {
-		ins.ExpressionAtomLeft.Initialize(knowledgeContext, ruleCtx, dataCtx)
+	if exprAtm.ExpressionAtomLeft != nil {
+		exprAtm.ExpressionAtomLeft.Initialize(knowledgeContext, ruleCtx, dataCtx)
 	}
 
-	if ins.ExpressionAtomRight != nil {
-		ins.ExpressionAtomRight.Initialize(knowledgeContext, ruleCtx, dataCtx)
+	if exprAtm.ExpressionAtomRight != nil {
+		exprAtm.ExpressionAtomRight.Initialize(knowledgeContext, ruleCtx, dataCtx)
 	}
 
-	if ins.Constant != nil {
-		ins.Constant.Initialize(knowledgeContext, ruleCtx, dataCtx)
+	if exprAtm.Constant != nil {
+		exprAtm.Constant.Initialize(knowledgeContext, ruleCtx, dataCtx)
 	}
 
-	if ins.FunctionCall != nil {
-		ins.FunctionCall.Initialize(knowledgeContext, ruleCtx, dataCtx)
+	if exprAtm.FunctionCall != nil {
+		exprAtm.FunctionCall.Initialize(knowledgeContext, ruleCtx, dataCtx)
 	}
 
-	if ins.MethodCall != nil {
-		ins.MethodCall.Initialize(knowledgeContext, ruleCtx, dataCtx)
+	if exprAtm.MethodCall != nil {
+		exprAtm.MethodCall.Initialize(knowledgeContext, ruleCtx, dataCtx)
 	}
 }
 
-func (expr *ExpressionAtom) AcceptExpressionAtom(exprAtom *ExpressionAtom) error {
-	if expr.ExpressionAtomLeft == nil {
-		expr.ExpressionAtomLeft = exprAtom
-	} else if expr.ExpressionAtomRight == nil {
-		expr.ExpressionAtomRight = exprAtom
+func (exprAtm *ExpressionAtom) AcceptExpressionAtom(exprAtom *ExpressionAtom) error {
+	if exprAtm.ExpressionAtomLeft == nil {
+		exprAtm.ExpressionAtomLeft = exprAtom
+	} else if exprAtm.ExpressionAtomRight == nil {
+		exprAtm.ExpressionAtomRight = exprAtom
 	} else {
 		return errors.Errorf("expression alredy set twice")
 	}
 	return nil
 }
 
-func (expr *ExpressionAtom) AcceptFunctionCall(funcCall *FunctionCall) error {
-	if expr.FunctionCall != nil {
+func (exprAtm *ExpressionAtom) AcceptFunctionCall(funcCall *FunctionCall) error {
+	if exprAtm.FunctionCall != nil {
 		return errors.Errorf("functioncall alredy set")
 	}
-	expr.FunctionCall = funcCall
+	exprAtm.FunctionCall = funcCall
 	return nil
 }
 
-func (ins *ExpressionAtom) AcceptMethodCall(methodCall *MethodCall) error {
-	if ins.MethodCall != nil {
+func (exprAtm *ExpressionAtom) AcceptMethodCall(methodCall *MethodCall) error {
+	if exprAtm.MethodCall != nil {
 		return errors.Errorf("method call alredy set")
 	}
-	ins.MethodCall = methodCall
+	exprAtm.MethodCall = methodCall
 	return nil
 }
 
-func (expr *ExpressionAtom) AcceptVariable(name string) error {
-	if expr.Variable == "" {
-		expr.Variable = name
+func (exprAtm *ExpressionAtom) AcceptVariable(name string) error {
+	if exprAtm.Variable == "" {
+		exprAtm.Variable = name
 		return nil
 	} else {
 		return errors.Errorf("variable already defined")
 	}
 }
 
-func (expr *ExpressionAtom) AcceptConstant(cons *Constant) error {
-	if expr.Constant == nil {
-		expr.Constant = cons
+func (exprAtm *ExpressionAtom) AcceptConstant(cons *Constant) error {
+	if exprAtm.Constant == nil {
+		exprAtm.Constant = cons
 		return nil
 	} else {
 		return errors.Errorf("constant already defined")

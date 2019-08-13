@@ -13,21 +13,21 @@ type AssignExpressions struct {
 	dataCtx          *context.DataContext
 }
 
-func (ins *AssignExpressions) Initialize(knowledgeContext *context.KnowledgeContext, ruleCtx *context.RuleContext, dataCtx *context.DataContext) {
-	ins.knowledgeContext = knowledgeContext
-	ins.ruleCtx = ruleCtx
-	ins.dataCtx = dataCtx
+func (ae *AssignExpressions) Initialize(knowledgeContext *context.KnowledgeContext, ruleCtx *context.RuleContext, dataCtx *context.DataContext) {
+	ae.knowledgeContext = knowledgeContext
+	ae.ruleCtx = ruleCtx
+	ae.dataCtx = dataCtx
 
-	if ins.ExpressionList != nil {
-		for _, val := range ins.ExpressionList {
+	if ae.ExpressionList != nil {
+		for _, val := range ae.ExpressionList {
 			val.Initialize(knowledgeContext, ruleCtx, dataCtx)
 		}
 	}
 }
 
 // Evaluate the object graph against underlined context or execute evaluation in the sub graph.
-func (ins *AssignExpressions) Evaluate() (reflect.Value, error) {
-	for _, v := range ins.ExpressionList {
+func (ae *AssignExpressions) Evaluate() (reflect.Value, error) {
+	for _, v := range ae.ExpressionList {
 		_, err := v.Evaluate()
 		if err != nil {
 			return reflect.ValueOf(nil), errors.Trace(err)

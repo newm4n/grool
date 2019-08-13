@@ -15,40 +15,40 @@ type AssignExpression struct {
 	dataCtx          *context.DataContext
 }
 
-func (ins *AssignExpression) Initialize(knowledgeContext *context.KnowledgeContext, ruleCtx *context.RuleContext, dataCtx *context.DataContext) {
-	ins.knowledgeContext = knowledgeContext
-	ins.ruleCtx = ruleCtx
-	ins.dataCtx = dataCtx
+func (ae *AssignExpression) Initialize(knowledgeContext *context.KnowledgeContext, ruleCtx *context.RuleContext, dataCtx *context.DataContext) {
+	ae.knowledgeContext = knowledgeContext
+	ae.ruleCtx = ruleCtx
+	ae.dataCtx = dataCtx
 
-	if ins.Assignment != nil {
-		ins.Assignment.Initialize(knowledgeContext, ruleCtx, dataCtx)
+	if ae.Assignment != nil {
+		ae.Assignment.Initialize(knowledgeContext, ruleCtx, dataCtx)
 	}
 
-	if ins.FunctionCall != nil {
-		ins.FunctionCall.Initialize(knowledgeContext, ruleCtx, dataCtx)
+	if ae.FunctionCall != nil {
+		ae.FunctionCall.Initialize(knowledgeContext, ruleCtx, dataCtx)
 	}
 
-	if ins.MethodCall != nil {
-		ins.MethodCall.Initialize(knowledgeContext, ruleCtx, dataCtx)
+	if ae.MethodCall != nil {
+		ae.MethodCall.Initialize(knowledgeContext, ruleCtx, dataCtx)
 	}
 }
 
-func (ins *AssignExpression) AcceptFunctionCall(funcCall *FunctionCall) error {
-	ins.FunctionCall = funcCall
+func (ae *AssignExpression) AcceptFunctionCall(funcCall *FunctionCall) error {
+	ae.FunctionCall = funcCall
 	return nil
 }
 
-func (ins *AssignExpression) AcceptMethodCall(methodCall *MethodCall) error {
-	ins.MethodCall = methodCall
+func (ae *AssignExpression) AcceptMethodCall(methodCall *MethodCall) error {
+	ae.MethodCall = methodCall
 	return nil
 }
 
 // Evaluate the object graph against underlined context or execute evaluation in the sub graph.
-func (ins *AssignExpression) Evaluate() (reflect.Value, error) {
-	if ins.Assignment != nil {
-		return ins.Assignment.Evaluate()
-	} else if ins.FunctionCall != nil {
-		return ins.FunctionCall.Evaluate()
+func (ae *AssignExpression) Evaluate() (reflect.Value, error) {
+	if ae.Assignment != nil {
+		return ae.Assignment.Evaluate()
+	} else if ae.FunctionCall != nil {
+		return ae.FunctionCall.Evaluate()
 	} else {
 		return reflect.ValueOf(nil), errors.Errorf("no assignment or function call to evaluate")
 	}

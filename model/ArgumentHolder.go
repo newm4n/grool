@@ -20,35 +20,35 @@ type ArgumentHolder struct {
 }
 
 // Initialize this ArgumentHolder instance graph before rule execution start.
-func (ins *ArgumentHolder) Initialize(knowledgeContext *context.KnowledgeContext, ruleCtx *context.RuleContext, dataCtx *context.DataContext) {
-	ins.knowledgeContext = knowledgeContext
-	ins.ruleCtx = ruleCtx
-	ins.dataCtx = dataCtx
+func (ah *ArgumentHolder) Initialize(knowledgeContext *context.KnowledgeContext, ruleCtx *context.RuleContext, dataCtx *context.DataContext) {
+	ah.knowledgeContext = knowledgeContext
+	ah.ruleCtx = ruleCtx
+	ah.dataCtx = dataCtx
 
-	if ins.Constant != nil {
-		ins.Constant.Initialize(knowledgeContext, ruleCtx, dataCtx)
+	if ah.Constant != nil {
+		ah.Constant.Initialize(knowledgeContext, ruleCtx, dataCtx)
 	}
-	if ins.FunctionCall != nil {
-		ins.FunctionCall.Initialize(knowledgeContext, ruleCtx, dataCtx)
+	if ah.FunctionCall != nil {
+		ah.FunctionCall.Initialize(knowledgeContext, ruleCtx, dataCtx)
 	}
-	if ins.MethodCall != nil {
-		ins.MethodCall.Initialize(knowledgeContext, ruleCtx, dataCtx)
+	if ah.MethodCall != nil {
+		ah.MethodCall.Initialize(knowledgeContext, ruleCtx, dataCtx)
 	}
-	if ins.Expression != nil {
-		ins.Expression.Initialize(knowledgeContext, ruleCtx, dataCtx)
+	if ah.Expression != nil {
+		ah.Expression.Initialize(knowledgeContext, ruleCtx, dataCtx)
 	}
 }
 
 // Evaluate the object graph against underlined context or execute evaluation in the sub graph.
-func (ins *ArgumentHolder) Evaluate() (reflect.Value, error) {
-	if len(ins.Variable) > 0 {
-		return ins.dataCtx.GetValue(ins.Variable)
-	} else if ins.Constant != nil {
-		return ins.Constant.Evaluate()
-	} else if ins.FunctionCall != nil {
-		return ins.FunctionCall.Evaluate()
-	} else if ins.Expression != nil {
-		return ins.Expression.Evaluate()
+func (ah *ArgumentHolder) Evaluate() (reflect.Value, error) {
+	if len(ah.Variable) > 0 {
+		return ah.dataCtx.GetValue(ah.Variable)
+	} else if ah.Constant != nil {
+		return ah.Constant.Evaluate()
+	} else if ah.FunctionCall != nil {
+		return ah.FunctionCall.Evaluate()
+	} else if ah.Expression != nil {
+		return ah.Expression.Evaluate()
 	} else {
 		return reflect.ValueOf(nil), fmt.Errorf("argument holder stores no value")
 	}

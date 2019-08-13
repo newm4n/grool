@@ -16,13 +16,13 @@ type Assignment struct {
 	dataCtx          *context.DataContext
 }
 
-func (ins *Assignment) Initialize(knowledgeContext *context.KnowledgeContext, ruleCtx *context.RuleContext, dataCtx *context.DataContext) {
-	ins.knowledgeContext = knowledgeContext
-	ins.ruleCtx = ruleCtx
-	ins.dataCtx = dataCtx
+func (assign *Assignment) Initialize(knowledgeContext *context.KnowledgeContext, ruleCtx *context.RuleContext, dataCtx *context.DataContext) {
+	assign.knowledgeContext = knowledgeContext
+	assign.ruleCtx = ruleCtx
+	assign.dataCtx = dataCtx
 
-	if ins.Expression != nil {
-		ins.Expression.Initialize(knowledgeContext, ruleCtx, dataCtx)
+	if assign.Expression != nil {
+		assign.Expression.Initialize(knowledgeContext, ruleCtx, dataCtx)
 	}
 }
 
@@ -44,13 +44,13 @@ func (assign *Assignment) AcceptVariable(name string) error {
 }
 
 // Evaluate the object graph against underlined context or execute evaluation in the sub graph.
-func (ins *Assignment) Evaluate() (reflect.Value, error) {
-	v, err := ins.Expression.Evaluate()
+func (assign *Assignment) Evaluate() (reflect.Value, error) {
+	v, err := assign.Expression.Evaluate()
 	if err != nil {
 		log.Errorf("Evaluate Got error %v", err)
 		return reflect.ValueOf(nil), errors.Trace(err)
 	}
-	err = ins.dataCtx.SetValue(ins.Variable, v)
+	err = assign.dataCtx.SetValue(assign.Variable, v)
 	if err != nil {
 		log.Errorf("SetValue Got error %v", err)
 		return reflect.ValueOf(nil), errors.Trace(err)

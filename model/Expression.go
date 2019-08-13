@@ -19,19 +19,19 @@ type Expression struct {
 }
 
 // Initialize this object graph with necessary context prior engine execution.
-func (ins *Expression) Initialize(knowledgeContext *context.KnowledgeContext, ruleCtx *context.RuleContext, dataCtx *context.DataContext) {
-	ins.knowledgeContext = knowledgeContext
-	ins.ruleCtx = ruleCtx
-	ins.dataCtx = dataCtx
+func (expr *Expression) Initialize(knowledgeContext *context.KnowledgeContext, ruleCtx *context.RuleContext, dataCtx *context.DataContext) {
+	expr.knowledgeContext = knowledgeContext
+	expr.ruleCtx = ruleCtx
+	expr.dataCtx = dataCtx
 
-	if ins.LeftExpression != nil {
-		ins.LeftExpression.Initialize(knowledgeContext, ruleCtx, dataCtx)
+	if expr.LeftExpression != nil {
+		expr.LeftExpression.Initialize(knowledgeContext, ruleCtx, dataCtx)
 	}
-	if ins.RightExpression != nil {
-		ins.RightExpression.Initialize(knowledgeContext, ruleCtx, dataCtx)
+	if expr.RightExpression != nil {
+		expr.RightExpression.Initialize(knowledgeContext, ruleCtx, dataCtx)
 	}
-	if ins.Predicate != nil {
-		ins.Predicate.Initialize(knowledgeContext, ruleCtx, dataCtx)
+	if expr.Predicate != nil {
+		expr.Predicate.Initialize(knowledgeContext, ruleCtx, dataCtx)
 	}
 }
 

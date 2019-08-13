@@ -12,17 +12,17 @@ type ThenScope struct {
 	dataCtx           *context.DataContext
 }
 
-func (ins *ThenScope) Initialize(knowledgeContext *context.KnowledgeContext, ruleCtx *context.RuleContext, dataCtx *context.DataContext) {
-	ins.knowledgeContext = knowledgeContext
-	ins.ruleCtx = ruleCtx
+func (then *ThenScope) Initialize(knowledgeContext *context.KnowledgeContext, ruleCtx *context.RuleContext, dataCtx *context.DataContext) {
+	then.knowledgeContext = knowledgeContext
+	then.ruleCtx = ruleCtx
 
-	if ins.AssignExpressions != nil {
-		ins.AssignExpressions.Initialize(knowledgeContext, ruleCtx, dataCtx)
+	if then.AssignExpressions != nil {
+		then.AssignExpressions.Initialize(knowledgeContext, ruleCtx, dataCtx)
 	}
 }
 
-func (ts *ThenScope) Execute() error {
-	_, err := ts.AssignExpressions.Evaluate()
+func (then *ThenScope) Execute() error {
+	_, err := then.AssignExpressions.Evaluate()
 	if err != nil {
 		return errors.Trace(err)
 	} else {

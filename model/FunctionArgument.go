@@ -14,12 +14,12 @@ type FunctionArgument struct {
 }
 
 // EvaluateArguments the object graph against underlined context or execute evaluation in the sub graph.
-func (ins *FunctionArgument) EvaluateArguments() ([]reflect.Value, error) {
-	if ins.Arguments == nil || len(ins.Arguments) == 0 {
+func (funcArg *FunctionArgument) EvaluateArguments() ([]reflect.Value, error) {
+	if funcArg.Arguments == nil || len(funcArg.Arguments) == 0 {
 		return make([]reflect.Value, 0), nil
 	}
-	retVal := make([]reflect.Value, len(ins.Arguments))
-	for i, v := range ins.Arguments {
+	retVal := make([]reflect.Value, len(funcArg.Arguments))
+	for i, v := range funcArg.Arguments {
 		rv, err := v.Evaluate()
 		if err != nil {
 			return retVal, errors.Trace(err)
@@ -30,54 +30,54 @@ func (ins *FunctionArgument) EvaluateArguments() ([]reflect.Value, error) {
 	return retVal, nil
 }
 
-func (ins *FunctionArgument) Initialize(knowledgeContext *context.KnowledgeContext, ruleCtx *context.RuleContext, dataCtx *context.DataContext) {
-	ins.knowledgeContext = knowledgeContext
-	ins.ruleCtx = ruleCtx
-	ins.dataCtx = dataCtx
+func (funcArg *FunctionArgument) Initialize(knowledgeContext *context.KnowledgeContext, ruleCtx *context.RuleContext, dataCtx *context.DataContext) {
+	funcArg.knowledgeContext = knowledgeContext
+	funcArg.ruleCtx = ruleCtx
+	funcArg.dataCtx = dataCtx
 
-	if ins.Arguments != nil {
-		for _, val := range ins.Arguments {
+	if funcArg.Arguments != nil {
+		for _, val := range funcArg.Arguments {
 			val.Initialize(knowledgeContext, ruleCtx, dataCtx)
 		}
 	}
 }
 
-func (arg *FunctionArgument) AcceptExpression(expression *Expression) error {
+func (funcArg *FunctionArgument) AcceptExpression(expression *Expression) error {
 	holder := &ArgumentHolder{
 		Expression: expression,
 	}
-	arg.Arguments = append(arg.Arguments, holder)
+	funcArg.Arguments = append(funcArg.Arguments, holder)
 	return nil
 }
 
-func (arg *FunctionArgument) AcceptFunctionCall(funcCall *FunctionCall) error {
+func (funcArg *FunctionArgument) AcceptFunctionCall(funcCall *FunctionCall) error {
 	holder := &ArgumentHolder{
 		FunctionCall: funcCall,
 	}
-	arg.Arguments = append(arg.Arguments, holder)
+	funcArg.Arguments = append(funcArg.Arguments, holder)
 	return nil
 }
 
-func (arg *FunctionArgument) AcceptMethodCall(methodCall *MethodCall) error {
+func (funcArg *FunctionArgument) AcceptMethodCall(methodCall *MethodCall) error {
 	holder := &ArgumentHolder{
 		MethodCall: methodCall,
 	}
-	arg.Arguments = append(arg.Arguments, holder)
+	funcArg.Arguments = append(funcArg.Arguments, holder)
 	return nil
 }
 
-func (arg *FunctionArgument) AcceptVariable(name string) error {
+func (funcArg *FunctionArgument) AcceptVariable(name string) error {
 	holder := &ArgumentHolder{
 		Variable: name,
 	}
-	arg.Arguments = append(arg.Arguments, holder)
+	funcArg.Arguments = append(funcArg.Arguments, holder)
 	return nil
 }
 
-func (arg *FunctionArgument) AcceptConstant(cons *Constant) error {
+func (funcArg *FunctionArgument) AcceptConstant(cons *Constant) error {
 	holder := &ArgumentHolder{
 		Constant: cons,
 	}
-	arg.Arguments = append(arg.Arguments, holder)
+	funcArg.Arguments = append(funcArg.Arguments, holder)
 	return nil
 }

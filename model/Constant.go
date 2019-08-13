@@ -12,18 +12,18 @@ type Constant struct {
 	dataCtx          *context.DataContext
 }
 
-func (ins *Constant) Initialize(knowledgeContext *context.KnowledgeContext, ruleCtx *context.RuleContext, dataCtx *context.DataContext) {
-	ins.knowledgeContext = knowledgeContext
-	ins.ruleCtx = ruleCtx
-	ins.dataCtx = dataCtx
+func (cons *Constant) Initialize(knowledgeContext *context.KnowledgeContext, ruleCtx *context.RuleContext, dataCtx *context.DataContext) {
+	cons.knowledgeContext = knowledgeContext
+	cons.ruleCtx = ruleCtx
+	cons.dataCtx = dataCtx
 }
 
 // Evaluate the object graph against underlined context or execute evaluation in the sub graph.
-func (ins *Constant) Evaluate() (reflect.Value, error) {
-	return ins.ConstantValue, nil
+func (cons *Constant) Evaluate() (reflect.Value, error) {
+	return cons.ConstantValue, nil
 }
 
-func (ins *Constant) AcceptDecimal(val int64) error {
-	ins.ConstantValue = reflect.ValueOf(val)
+func (cons *Constant) AcceptDecimal(val int64) error {
+	cons.ConstantValue = reflect.ValueOf(val)
 	return nil
 }
