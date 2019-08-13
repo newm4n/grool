@@ -30,4 +30,5 @@ func (ins *MethodCall) AcceptFunctionArgument(funcArg *FunctionArgument) error {
 
 func (exp *MethodCall) Evaluate() (reflect.Value, error) {
 	// todo finish thiss
+	return reflect.ValueOf(nil), nil
 }
