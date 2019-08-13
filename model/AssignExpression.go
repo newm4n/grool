@@ -43,6 +43,7 @@ func (ins *AssignExpression) AcceptMethodCall(methodCall *MethodCall) error {
 	return nil
 }
 
+// Evaluate the object graph against underlined context or execute evaluation in the sub graph.
 func (ins *AssignExpression) Evaluate() (reflect.Value, error) {
 	if ins.Assignment != nil {
 		return ins.Assignment.Evaluate()

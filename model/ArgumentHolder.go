@@ -6,6 +6,8 @@ import (
 	"reflect"
 )
 
+// ArgumentHolder is a struct part of the rule object graph.
+// It holds child graph such as Variable name, Constant data, Function, Expressions, etc.
 type ArgumentHolder struct {
 	Constant         *Constant
 	Variable         string
@@ -17,6 +19,7 @@ type ArgumentHolder struct {
 	dataCtx          *context.DataContext
 }
 
+// Initialize this ArgumentHolder instance graph before rule execution start.
 func (ins *ArgumentHolder) Initialize(knowledgeContext *context.KnowledgeContext, ruleCtx *context.RuleContext, dataCtx *context.DataContext) {
 	ins.knowledgeContext = knowledgeContext
 	ins.ruleCtx = ruleCtx
@@ -36,6 +39,7 @@ func (ins *ArgumentHolder) Initialize(knowledgeContext *context.KnowledgeContext
 	}
 }
 
+// Evaluate the object graph against underlined context or execute evaluation in the sub graph.
 func (ins *ArgumentHolder) Evaluate() (reflect.Value, error) {
 	if len(ins.Variable) > 0 {
 		return ins.dataCtx.GetValue(ins.Variable)

@@ -29,6 +29,7 @@ func (ins *MethodCall) AcceptFunctionArgument(funcArg *FunctionArgument) error {
 	return nil
 }
 
+// Evaluate the object graph against underlined context or execute evaluation in the sub graph.
 func (exp *MethodCall) Evaluate() (reflect.Value, error) {
 	var argumentValues []reflect.Value
 	if exp.MethodArguments == nil {

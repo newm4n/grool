@@ -30,6 +30,7 @@ func (ins *FunctionCall) Initialize(knowledgeContext *context.KnowledgeContext, 
 	}
 }
 
+// Evaluate the object graph against underlined context or execute evaluation in the sub graph.
 func (exp *FunctionCall) Evaluate() (reflect.Value, error) {
 	var argumentValues []reflect.Value
 	if exp.FunctionArguments == nil {

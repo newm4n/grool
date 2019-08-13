@@ -6,6 +6,8 @@ import (
 	"reflect"
 )
 
+// Expression hold the object graph as defined in the rule semantic.
+// an expression could hold a predicate or pair of logical operated expression.
 type Expression struct {
 	LeftExpression   *Expression
 	RightExpression  *Expression
@@ -16,6 +18,7 @@ type Expression struct {
 	dataCtx          *context.DataContext
 }
 
+// Initialize this object graph with necessary context prior engine execution.
 func (ins *Expression) Initialize(knowledgeContext *context.KnowledgeContext, ruleCtx *context.RuleContext, dataCtx *context.DataContext) {
 	ins.knowledgeContext = knowledgeContext
 	ins.ruleCtx = ruleCtx
@@ -32,6 +35,7 @@ func (ins *Expression) Initialize(knowledgeContext *context.KnowledgeContext, ru
 	}
 }
 
+// AcceptExpression will store expression as they are defined in the rule script, into this object graph.
 func (expr *Expression) AcceptExpression(expression *Expression) error {
 	if expr.LeftExpression == nil {
 		expr.LeftExpression = expression
@@ -43,6 +47,7 @@ func (expr *Expression) AcceptExpression(expression *Expression) error {
 	return nil
 }
 
+// Evaluate the object graph against underlined context or execute evaluation in the sub graph.
 func (expr *Expression) Evaluate() (reflect.Value, error) {
 	if expr.Predicate != nil {
 		return expr.Predicate.Evaluate()

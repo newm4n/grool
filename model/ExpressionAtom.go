@@ -20,6 +20,7 @@ type ExpressionAtom struct {
 	dataCtx             *context.DataContext
 }
 
+// Evaluate the object graph against underlined context or execute evaluation in the sub graph.
 func (exp *ExpressionAtom) Evaluate() (reflect.Value, error) {
 	if len(exp.Variable) > 0 {
 		return exp.dataCtx.GetValue(exp.Variable)

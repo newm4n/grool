@@ -43,6 +43,7 @@ func (assign *Assignment) AcceptVariable(name string) error {
 	}
 }
 
+// Evaluate the object graph against underlined context or execute evaluation in the sub graph.
 func (ins *Assignment) Evaluate() (reflect.Value, error) {
 	v, err := ins.Expression.Evaluate()
 	if err != nil {

@@ -13,6 +13,7 @@ type FunctionArgument struct {
 	dataCtx          *context.DataContext
 }
 
+// EvaluateArguments the object graph against underlined context or execute evaluation in the sub graph.
 func (ins *FunctionArgument) EvaluateArguments() ([]reflect.Value, error) {
 	if ins.Arguments == nil || len(ins.Arguments) == 0 {
 		return make([]reflect.Value, 0), nil

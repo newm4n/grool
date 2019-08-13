@@ -8,16 +8,21 @@ import (
 	"sort"
 )
 
+// NewGroolEngine will create new instance of Grool struct.
+// It will set the max cycle to 5000
 func NewGroolEngine() *Grool {
 	return &Grool{
 		MaxCycle: 5000,
 	}
 }
 
+// Grool is the engine structure. It has the Execute method to start the engine to work.
 type Grool struct {
 	MaxCycle uint64
 }
 
+// Execute function will execute a knowledge evaluation and action against data context.
+// The engine also do conflict resolution of which rule to execute.
 func (g *Grool) Execute(dataCtx *context.DataContext, knowledge *model.KnowledgeBase) error {
 	defunc := &context.GroolFunctions{}
 	kctx := &context.KnowledgeContext{}

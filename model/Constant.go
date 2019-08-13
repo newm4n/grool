@@ -18,6 +18,7 @@ func (ins *Constant) Initialize(knowledgeContext *context.KnowledgeContext, rule
 	ins.dataCtx = dataCtx
 }
 
+// Evaluate the object graph against underlined context or execute evaluation in the sub graph.
 func (ins *Constant) Evaluate() (reflect.Value, error) {
 	return ins.ConstantValue, nil
 }

@@ -41,6 +41,7 @@ func (pred *Predicate) AcceptExpressionAtom(exprAtom *ExpressionAtom) error {
 	return nil
 }
 
+// Evaluate the object graph against underlined context or execute evaluation in the sub graph.
 func (pre *Predicate) Evaluate() (reflect.Value, error) {
 	if pre.ExpressionAtomRight == nil {
 		return pre.ExpressionAtomLeft.Evaluate()

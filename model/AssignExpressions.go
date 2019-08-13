@@ -25,6 +25,7 @@ func (ins *AssignExpressions) Initialize(knowledgeContext *context.KnowledgeCont
 	}
 }
 
+// Evaluate the object graph against underlined context or execute evaluation in the sub graph.
 func (ins *AssignExpressions) Evaluate() (reflect.Value, error) {
 	for _, v := range ins.ExpressionList {
 		_, err := v.Evaluate()
