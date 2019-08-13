@@ -1,5 +1,7 @@
 <img src="https://github.com/newm4n/grool/raw/master/gopher-grools.png" alt="drawing" style="width:100px;"/>
 
+__"Gopher Holds The Rules"__
+
 # Grool
 ---
 
@@ -11,7 +13,7 @@ import "github.com/newm4n/grool"
 
 [![Travis CI](https://travis-ci.org/newm4n/grool.svg?branch=master)](http://google.com.au/)
 
-**Grool** is a Rule Engine library for Golang programming language. Inspired by the acclaimed JBOSS Drools, done in a simple manner.
+**Grool** is a Rule Engine library for Golang programming language. Inspired by the acclaimed JBOSS Drools, done in a much simple manner.
 
 Like **Drools**, **Grools** have its own *DSL* comparable as follows.
 
@@ -150,17 +152,14 @@ when
 then
      ...
 ```
-#### Constants and Literals
+#### Constants and Literalss
 
 | Literal | Description | Example |
 | ------- | ----------- | ------- |
 | String | Hold string literal, enclosed a string with double quote symbol &quot; | "This is a string" |
 | Decimal | Hold a decimal value, may preceeded with negative symbol - | `1` or `34` or `42344` or `-553` |
 | Real | Hold a real value | `234.4553`, `-234.3` |
-| Boolean | Hold a boolean value | `true`, `TRUE`, `False`
-| Time | Hold a date and time value. | `Now()` |
-
-
+| Boolean | Hold a boolean value | `true`, `TRUE`, `False` |
 
 Math operator such as `+`, `-`, `/`, `*`; Logical `&&` and `||`; Comparison 
 `<`,`<=`,`>`,`>=`,`==`,`!=` all are supported by the language.
@@ -320,19 +319,61 @@ if err != nil {
 The rule engine will use loaded knowledgebase to work upon sets of 
 fact data in data context. 
 
+## Calling Function in Grool
 
-## Function References
+All invocable functions which are invocable from the DataContext is **Invocable** from within the rule,
+both in the "When" scope and "Then" scope.
 
-| Function Name | Parameters | Returns | Example |
-| -------------- | ---------| ---------| -------|
-| `Now()`      | none | `Time` | `someTime < Now()` |
-| `IsAfter(t1,t2)` | t1=time, t2=time | `Bool` | `IsAfter(time, Now())` |
-| `IsBefore(t1,t2)` | t1=time, t2=time | `Bool` | `IsBefore(time, Now())` |
-| `MakeTime(y,M,d,h,m,s)` | y=int(year), M=int(month), d=int(Day), h=int(Hour), m=int(Minute), s=int(Second) | `Time` | `MakeTime(2019,1,12,14,33,42)`|
-| `Log(s1)` | s1=string literal | none | `Log("This is a log")` |
+Assuming you have a struct with some functions.
 
+```go
+type MyPoGo struct {
+}
 
-# Known Issues
+func (p *MyPoGo) GetStringLength(sarg string) int {
+    return len(sarg)
+}
 
+func (p *MyPoGo) AppendString(aString, subString string) string {
+    return sprintf("%s%s", aString, subString)
+}
+```
 
+And add the struct into knowledge base 
 
+```go
+dctx := context.NewDataContext()
+dctx.Add("Pogo", &MyPoGo{})
+```
+
+You can call the fuction within the rule
+
+```go
+when
+    Pogo.GetStringLength(some.variable) < 100
+then
+    some.variable = Pogo.AppendString(some.variable, "Groooling");
+```
+
+### Default Functions
+
+All functions defined in `context/GroolFunction.go` are built-in functions.
+This means, that you can call the function straight away without having to mention the
+instance name as it automatically added by the engine.
+
+I don't maintain list of built in function as you can look into the Go source code directly.
+(the `context/GroolFunction.go`)
+
+### Important Thing you must know about Custom Function in Grool
+
+When you make your own function to be called from rule engine, you need to know the following rules.
+
+1. The function must be visible. Public function convention should start with capital letter. Private functions cant be executed.
+2. The function must only return 1 type. Returning multiple variable from function are not acceptable, the rule execution will fail if there are multiple return variable.
+3. The way number literal were treated in Grool's DRL is; **decimal** will always taken as `int64` and **real** as `float64`, thus always consider to define your function argument and returns between `int64` and `float64` when your function works with numbers.
+
+# Tasks
+
+* Need to do more and more and more test.
+* Better code coverage test.
+ 

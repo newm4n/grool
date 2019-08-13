@@ -10,6 +10,10 @@ import (
 type GroolFunctions struct {
 }
 
+func (gf *GroolFunctions) MakeTime(year, month, day, hour, minute, second int64) time.Time {
+	return time.Date(int(year), time.Month(month), int(day), int(hour), int(minute), int(second), 0, time.Local)
+}
+
 func (gf *GroolFunctions) Now() time.Time {
 	return time.Now()
 }
