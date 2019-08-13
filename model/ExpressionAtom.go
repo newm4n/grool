@@ -1,7 +1,6 @@
 package model
 
 import (
-	"fmt"
 	"github.com/juju/errors"
 	"github.com/newm4n/grool/context"
 	"github.com/newm4n/grool/pkg"
@@ -37,125 +36,18 @@ func (exp *ExpressionAtom) Evaluate() (reflect.Value, error) {
 		if err != nil {
 			return reflect.ValueOf(nil), errors.Trace(err)
 		}
-		if lv.Kind() == reflect.String && rv.Kind() == reflect.String && exp.MathOperator == MathOperatorPlus {
-			return reflect.ValueOf(fmt.Sprintf("%s%s", lv.String(), rv.String())), nil
-		} else {
-			bkl := pkg.GetBaseKind(lv)
-			bkr := pkg.GetBaseKind(rv)
-			if (bkl == reflect.Int64 || bkl == reflect.Uint64 || bkl == reflect.Float64) &&
-				(bkr == reflect.Int64 || bkr == reflect.Uint64 || bkr == reflect.Float64) {
-				if bkl == reflect.Int64 && bkr == reflect.Int64 {
-					switch exp.MathOperator {
-					case MathOperatorPlus:
-						return reflect.ValueOf(lv.Int() + rv.Int()), nil
-					case MathOperatorMinus:
-						return reflect.ValueOf(lv.Int() - rv.Int()), nil
-					case MathOperatorMul:
-						return reflect.ValueOf(lv.Int() * rv.Int()), nil
-					case MathOperatorDiv:
-						return reflect.ValueOf(lv.Int() / rv.Int()), nil
-					}
-				} else if bkl == reflect.Int64 && bkr == reflect.Uint64 {
-					if rv.OverflowUint(rv.Uint()) {
-						return reflect.ValueOf(nil), fmt.Errorf("the integer value %d is overflowing int64 type", rv.Uint())
-					}
-					switch exp.MathOperator {
-					case MathOperatorPlus:
-						return reflect.ValueOf(lv.Int() + int64(rv.Uint())), nil
-					case MathOperatorMinus:
-						return reflect.ValueOf(lv.Int() - int64(rv.Uint())), nil
-					case MathOperatorMul:
-						return reflect.ValueOf(lv.Int() * int64(rv.Uint())), nil
-					case MathOperatorDiv:
-						return reflect.ValueOf(lv.Int() / int64(rv.Uint())), nil
-					}
-				} else if bkl == reflect.Int64 && bkr == reflect.Float64 {
-					switch exp.MathOperator {
-					case MathOperatorPlus:
-						return reflect.ValueOf(float64(lv.Int()) + rv.Float()), nil
-					case MathOperatorMinus:
-						return reflect.ValueOf(float64(lv.Int()) - rv.Float()), nil
-					case MathOperatorMul:
-						return reflect.ValueOf(float64(lv.Int()) * rv.Float()), nil
-					case MathOperatorDiv:
-						return reflect.ValueOf(float64(lv.Int()) / rv.Float()), nil
-					}
-				} else if bkl == reflect.Uint64 && bkr == reflect.Int64 {
-					if lv.OverflowInt(rv.Int()) {
-						return reflect.ValueOf(nil), fmt.Errorf("the integer value %d is overflowing int64 type", rv.Uint())
-					}
-					switch exp.MathOperator {
-					case MathOperatorPlus:
-						return reflect.ValueOf(lv.Uint() + uint64(rv.Int())), nil
-					case MathOperatorMinus:
-						return reflect.ValueOf(lv.Uint() - uint64(rv.Int())), nil
-					case MathOperatorMul:
-						return reflect.ValueOf(lv.Uint() * uint64(rv.Int())), nil
-					case MathOperatorDiv:
-						return reflect.ValueOf(lv.Uint() / uint64(rv.Int())), nil
-					}
-				} else if bkl == reflect.Uint64 && bkr == reflect.Uint64 {
-					switch exp.MathOperator {
-					case MathOperatorPlus:
-						return reflect.ValueOf(lv.Uint() + rv.Uint()), nil
-					case MathOperatorMinus:
-						return reflect.ValueOf(lv.Uint() - rv.Uint()), nil
-					case MathOperatorMul:
-						return reflect.ValueOf(lv.Uint() * rv.Uint()), nil
-					case MathOperatorDiv:
-						return reflect.ValueOf(lv.Uint() / rv.Uint()), nil
-					}
-				} else if bkl == reflect.Uint64 && bkr == reflect.Float64 {
-					switch exp.MathOperator {
-					case MathOperatorPlus:
-						return reflect.ValueOf(float64(lv.Uint()) + rv.Float()), nil
-					case MathOperatorMinus:
-						return reflect.ValueOf(float64(lv.Uint()) - rv.Float()), nil
-					case MathOperatorMul:
-						return reflect.ValueOf(float64(lv.Uint()) * rv.Float()), nil
-					case MathOperatorDiv:
-						return reflect.ValueOf(float64(lv.Uint()) / rv.Float()), nil
-					}
-				} else if bkl == reflect.Float64 && bkr == reflect.Int64 {
-					switch exp.MathOperator {
-					case MathOperatorPlus:
-						return reflect.ValueOf(lv.Float() + float64(rv.Int())), nil
-					case MathOperatorMinus:
-						return reflect.ValueOf(lv.Float() - float64(rv.Int())), nil
-					case MathOperatorMul:
-						return reflect.ValueOf(lv.Float() * float64(rv.Int())), nil
-					case MathOperatorDiv:
-						return reflect.ValueOf(lv.Float() / float64(rv.Int())), nil
-					}
-				} else if bkl == reflect.Float64 && bkr == reflect.Uint64 {
-					switch exp.MathOperator {
-					case MathOperatorPlus:
-						return reflect.ValueOf(lv.Float() + float64(rv.Uint())), nil
-					case MathOperatorMinus:
-						return reflect.ValueOf(lv.Float() - float64(rv.Uint())), nil
-					case MathOperatorMul:
-						return reflect.ValueOf(lv.Float() * float64(rv.Uint())), nil
-					case MathOperatorDiv:
-						return reflect.ValueOf(lv.Float() / float64(rv.Uint())), nil
-					}
-				} else if bkl == reflect.Float64 && bkr == reflect.Float64 {
-					switch exp.MathOperator {
-					case MathOperatorPlus:
-						return reflect.ValueOf(lv.Float() + rv.Float()), nil
-					case MathOperatorMinus:
-						return reflect.ValueOf(lv.Float() - rv.Float()), nil
-					case MathOperatorMul:
-						return reflect.ValueOf(lv.Float() * rv.Float()), nil
-					case MathOperatorDiv:
-						return reflect.ValueOf(lv.Float() / rv.Float()), nil
-					}
-				}
-			} else {
-				return reflect.ValueOf(nil), errors.Errorf("math operation can only be applied to numerical data, int, uit or float")
-			}
+		switch exp.MathOperator {
+		case MathOperatorPlus:
+			return pkg.ValueAdd(lv, rv)
+		case MathOperatorMinus:
+			return pkg.ValueSub(lv, rv)
+		case MathOperatorMul:
+			return pkg.ValueMul(lv, rv)
+		case MathOperatorDiv:
+			return pkg.ValueDiv(lv, rv)
 		}
+		return reflect.ValueOf(nil), errors.Errorf("math operation can only be applied to numerical data (eg. int, uit or float) or string")
 	}
-	return reflect.ValueOf(nil), nil
 }
 
 func (ins *ExpressionAtom) Initialize(knowledgeContext *context.KnowledgeContext, ruleCtx *context.RuleContext, dataCtx *context.DataContext) {
