@@ -141,7 +141,7 @@ are a candidate for execution for the current facts.
 **Assignment or Operation Expression** contains list of expressions (each expression should be ended with ";" symbol.) 
 The expression are designed to modify the current fact values, making calculation, make some logging, etc.
 
-#### Boolean Expression
+#### Boolean Expression 
 
 Boolean expression comes natural for java or golang developer in GRL. 
 
@@ -372,8 +372,9 @@ When you make your own function to be called from rule engine, you need to know 
 2. The function must only return 1 type. Returning multiple variable from function are not acceptable, the rule execution will fail if there are multiple return variable.
 3. The way number literal were treated in Grool's DRL is; **decimal** will always taken as `int64` and **real** as `float64`, thus always consider to define your function argument and returns between `int64` and `float64` when your function works with numbers.
 
-# Tasks
+# Tasks and Help Wanted.
 
 * Need to do more and more and more test.
 * Better code coverage test.
- 
+* Better commenting for go doc best practice.
+* Improve function argument handling to be more fluid and intuitive.
