@@ -1,4 +1,4 @@
-![logo](https://github.com/newm4n/grool/raw/master/gopher-grools.png)
+<img src="https://github.com/newm4n/grool/raw/master/gopher-grools.png" alt="drawing" style="width:100px;"/>
 
 # Grool
 ---
