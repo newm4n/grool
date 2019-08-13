@@ -49,7 +49,7 @@ type DistanceRecorder struct {
 
 const (
 	rules = `
-rule SpeedUp "When testcar is speeding up we keep increase the speed."  {
+rule SpeedUp "When testcar is speeding up we keep increase the speed." salience 10 {
     when
         TestCar.SpeedUp == true && TestCar.Speed < TestCar.MaxSpeed
     then
@@ -57,15 +57,15 @@ rule SpeedUp "When testcar is speeding up we keep increase the speed."  {
 		DistanceRecord.TotalDistance = DistanceRecord.TotalDistance + TestCar.Speed;
 }
 
-rule StartSpeedDown "When testcar is speeding up and over max speed we change to speed down."  {
+rule StartSpeedDown "When testcar is speeding up and over max speed we change to speed down." salience 10  {
     when
         TestCar.SpeedUp == true && TestCar.Speed >= TestCar.MaxSpeed
     then
         TestCar.SpeedUp = false;
-		log("Now we slow down");
+		Log("Now we slow down");
 }
 
-rule SlowDown "When testcar is slowing down we keep decreasing the speed."  {
+rule SlowDown "When testcar is slowing down we keep decreasing the speed." salience 10  {
     when
         TestCar.SpeedUp == false && TestCar.Speed > 0
     then
@@ -75,10 +75,10 @@ rule SlowDown "When testcar is slowing down we keep decreasing the speed."  {
 
 rule SetTime "When Distance Recorder time not set, set it." {
 	when
-		isNil(DistanceRecord.TestTime)
+		IsZero(DistanceRecord.TestTime)
 	then
-		log("Set the test time");
-		DistanceRecord.TestTime = now();
+		Log("Set the test time");
+		DistanceRecord.TestTime = Now();
 }
 `
 )
@@ -105,12 +105,15 @@ func TestGrool_Execute(t *testing.T) {
 		t.FailNow()
 	} else {
 		engine := NewGroolEngine()
+		start := time.Now()
 		err = engine.Execute(dctx, kb)
 		if err != nil {
 			t.Errorf("Got error : %v", err)
 			t.FailNow()
 		} else {
+			dur := time.Now().Sub(start)
 			t.Log(dr.TotalDistance)
+			t.Logf("Duration %f ms", float64(dur)/float64(time.Millisecond))
 		}
 	}
 }

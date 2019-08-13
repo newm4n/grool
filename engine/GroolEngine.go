@@ -19,8 +19,11 @@ type Grool struct {
 }
 
 func (g *Grool) Execute(dataCtx *context.DataContext, knowledge *model.KnowledgeBase) error {
+	defunc := &context.GroolFunctions{}
 	kctx := &context.KnowledgeContext{}
 	rctx := &context.RuleContext{}
+	dataCtx.Add("DEFUNC", defunc)
+
 	for _, v := range knowledge.RuleEntries {
 		v.Initialize(kctx, rctx, dataCtx)
 	}
@@ -45,7 +48,7 @@ func (g *Grool) Execute(dataCtx *context.DataContext, knowledge *model.Knowledge
 			// test if this rule entry v can execute.
 			can, err := v.CanExecute()
 			if err != nil {
-				log.Errorf("Failed testing condition for rule : %s. Got error %v", runnable[0].RuleName, err)
+				log.Errorf("Failed testing condition for rule : %s. Got error %v", v.RuleName, err)
 				return errors.Trace(err)
 			}
 			// if can, add into runnable array

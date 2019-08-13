@@ -1,6 +1,7 @@
 package model
 
 import (
+	"github.com/juju/errors"
 	"github.com/newm4n/grool/context"
 	"reflect"
 )
@@ -29,6 +30,16 @@ func (ins *MethodCall) AcceptFunctionArgument(funcArg *FunctionArgument) error {
 }
 
 func (exp *MethodCall) Evaluate() (reflect.Value, error) {
-	// todo finish thiss
-	return reflect.ValueOf(nil), nil
+	var argumentValues []reflect.Value
+	if exp.MethodArguments == nil {
+		argumentValues = make([]reflect.Value, 0)
+	} else {
+		av, err := exp.MethodArguments.EvaluateArguments()
+		if err != nil {
+			return reflect.ValueOf(nil), errors.Trace(err)
+		}
+		argumentValues = av
+	}
+
+	return exp.dataCtx.ExecMethod(exp.MethodName, argumentValues)
 }
