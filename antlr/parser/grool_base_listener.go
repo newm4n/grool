@@ -99,6 +99,12 @@ func (s *BasegroolListener) EnterExpressionAtom(ctx *ExpressionAtomContext) {}
 // ExitExpressionAtom is called when production expressionAtom is exited.
 func (s *BasegroolListener) ExitExpressionAtom(ctx *ExpressionAtomContext) {}
 
+// EnterMethodCall is called when production methodCall is entered.
+func (s *BasegroolListener) EnterMethodCall(ctx *MethodCallContext) {}
+
+// ExitMethodCall is called when production methodCall is exited.
+func (s *BasegroolListener) ExitMethodCall(ctx *MethodCallContext) {}
+
 // EnterFunctionCall is called when production functionCall is entered.
 func (s *BasegroolListener) EnterFunctionCall(ctx *FunctionCallContext) {}
 

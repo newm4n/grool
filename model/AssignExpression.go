@@ -9,6 +9,7 @@ import (
 type AssignExpression struct {
 	Assignment       *Assignment
 	FunctionCall     *FunctionCall
+	MethodCall       *MethodCall
 	knowledgeContext *context.KnowledgeContext
 	ruleCtx          *context.RuleContext
 	dataCtx          *context.DataContext
@@ -26,10 +27,19 @@ func (ins *AssignExpression) Initialize(knowledgeContext *context.KnowledgeConte
 	if ins.FunctionCall != nil {
 		ins.FunctionCall.Initialize(knowledgeContext, ruleCtx, dataCtx)
 	}
+
+	if ins.MethodCall != nil {
+		ins.MethodCall.Initialize(knowledgeContext, ruleCtx, dataCtx)
+	}
 }
 
 func (ins *AssignExpression) AcceptFunctionCall(funcCall *FunctionCall) error {
 	ins.FunctionCall = funcCall
+	return nil
+}
+
+func (ins *AssignExpression) AcceptMethodCall(methodCall *MethodCall) error {
+	ins.MethodCall = methodCall
 	return nil
 }
 

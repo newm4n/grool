@@ -57,6 +57,14 @@ func (arg *FunctionArgument) AcceptFunctionCall(funcCall *FunctionCall) error {
 	return nil
 }
 
+func (arg *FunctionArgument) AcceptMethodCall(methodCall *MethodCall) error {
+	holder := &ArgumentHolder{
+		MethodCall: methodCall,
+	}
+	arg.Arguments = append(arg.Arguments, holder)
+	return nil
+}
+
 func (arg *FunctionArgument) AcceptVariable(name string) error {
 	holder := &ArgumentHolder{
 		Variable: name,

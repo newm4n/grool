@@ -47,6 +47,9 @@ type groolListener interface {
 	// EnterExpressionAtom is called when entering the expressionAtom production.
 	EnterExpressionAtom(c *ExpressionAtomContext)
 
+	// EnterMethodCall is called when entering the methodCall production.
+	EnterMethodCall(c *MethodCallContext)
+
 	// EnterFunctionCall is called when entering the functionCall production.
 	EnterFunctionCall(c *FunctionCallContext)
 
@@ -118,6 +121,9 @@ type groolListener interface {
 
 	// ExitExpressionAtom is called when exiting the expressionAtom production.
 	ExitExpressionAtom(c *ExpressionAtomContext)
+
+	// ExitMethodCall is called when exiting the methodCall production.
+	ExitMethodCall(c *MethodCallContext)
 
 	// ExitFunctionCall is called when exiting the functionCall production.
 	ExitFunctionCall(c *FunctionCallContext)

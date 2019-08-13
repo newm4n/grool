@@ -15,6 +15,7 @@ type ExpressionAtom struct {
 	Variable            string
 	Constant            *Constant
 	FunctionCall        *FunctionCall
+	MethodCall          *MethodCall
 	knowledgeContext    *context.KnowledgeContext
 	ruleCtx             *context.RuleContext
 	dataCtx             *context.DataContext
@@ -177,6 +178,10 @@ func (ins *ExpressionAtom) Initialize(knowledgeContext *context.KnowledgeContext
 	if ins.FunctionCall != nil {
 		ins.FunctionCall.Initialize(knowledgeContext, ruleCtx, dataCtx)
 	}
+
+	if ins.MethodCall != nil {
+		ins.MethodCall.Initialize(knowledgeContext, ruleCtx, dataCtx)
+	}
 }
 
 func (expr *ExpressionAtom) AcceptExpressionAtom(exprAtom *ExpressionAtom) error {
@@ -195,6 +200,14 @@ func (expr *ExpressionAtom) AcceptFunctionCall(funcCall *FunctionCall) error {
 		return errors.Errorf("functioncall alredy set")
 	}
 	expr.FunctionCall = funcCall
+	return nil
+}
+
+func (ins *ExpressionAtom) AcceptMethodCall(methodCall *MethodCall) error {
+	if ins.MethodCall != nil {
+		return errors.Errorf("method call alredy set")
+	}
+	ins.MethodCall = methodCall
 	return nil
 }
 

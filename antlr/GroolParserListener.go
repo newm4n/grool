@@ -290,6 +290,32 @@ func (s *GroolParserListener) ExitExpressionAtom(ctx *parser.ExpressionAtomConte
 	}
 }
 
+// EnterMethodCall is called when production methodCall is entered.
+func (s *GroolParserListener) EnterMethodCall(ctx *parser.MethodCallContext) {
+	// return immediately when there's an error
+	if len(s.ParseErrors) > 0 {
+		return
+	}
+	funcCall := &model.MethodCall{
+		MethodName: ctx.DOTTEDNAME().GetText(),
+	}
+	s.Stack.Push(funcCall)
+}
+
+// ExitMethodCall is called when production methodCall is exited.
+func (s *GroolParserListener) ExitMethodCall(ctx *parser.MethodCallContext) {
+	methodCall := s.Stack.Pop().(*model.MethodCall)
+	// return immediately when there's an error
+	if len(s.ParseErrors) > 0 {
+		return
+	}
+	holder := s.Stack.Peek().(model.MethodCallHolder)
+	err := holder.AcceptMethodCall(methodCall)
+	if err != nil {
+		s.AddError(err)
+	}
+}
+
 // EnterFunctionCall is called when production functionCall is entered.
 func (s *GroolParserListener) EnterFunctionCall(ctx *parser.FunctionCallContext) {
 	// return immediately when there's an error
@@ -335,8 +361,11 @@ func (s *GroolParserListener) ExitFunctionArgs(ctx *parser.FunctionArgsContext) 
 	if len(s.ParseErrors) > 0 {
 		return
 	}
-	funcCall := s.Stack.Peek().(*model.FunctionCall)
-	funcCall.FunctionArguments = funcArgs
+	argHolder := s.Stack.Peek().(model.FunctionArgumentHolder)
+	err := argHolder.AcceptFunctionArgument(funcArgs)
+	if err != nil {
+		s.AddError(err)
+	}
 }
 
 // EnterLogicalOperator is called when production logicalOperator is entered.

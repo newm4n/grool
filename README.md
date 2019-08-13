@@ -1,3 +1,5 @@
+![logo](https://github.com/newm4n/grool/raw/master/gopher-grools.png)
+
 # Grool
 ---
 

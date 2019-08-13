@@ -38,6 +38,7 @@ assignExpressions
 assignExpression
     : assignment SEMICOLON
     | functionCall SEMICOLON
+    | methodCall SEMICOLON
     ;
 
 assignment

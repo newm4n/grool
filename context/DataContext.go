@@ -23,6 +23,10 @@ func (ctx *DataContext) Add(key string, obj interface{}) {
 	ctx.ObjectStore[key] = obj
 }
 
+func (ctx *DataContext) ExecMethod(methodName string, args []reflect.Value) (reflect.Value, error) {
+	// todo trace and invoke method
+}
+
 func (ctx *DataContext) GetType(variable string) (reflect.Type, error) {
 	varArray := strings.Split(variable, ".")
 	if val, ok := ctx.ObjectStore[varArray[0]]; ok {

@@ -17,6 +17,11 @@ type FunctionCall struct {
 	dataCtx           *context.DataContext
 }
 
+func (ins *FunctionCall) AcceptFunctionArgument(funcArg *FunctionArgument) error {
+	ins.FunctionArguments = funcArg
+	return nil
+}
+
 func (ins *FunctionCall) Initialize(knowledgeContext *context.KnowledgeContext, ruleCtx *context.RuleContext, dataCtx *context.DataContext) {
 	ins.knowledgeContext = knowledgeContext
 	ins.ruleCtx = ruleCtx

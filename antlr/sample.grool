@@ -13,7 +13,8 @@ rule RuleOne "Some rule description." salience 10 {
         someContext.attributeA.attributeB < 123 &&
         someContext.attributeA.attributeB >= 123 &&
         (someContext.attributeA.attributeB <= 123 && someContext.attributeA.attributeB != 123) &&
-        someContext.attributeA.attributeB > 123)
+        someContext.attributeA.attributeB > 123) ||
+        someContext.subContext.methodAbc( 23 + someContext.subContext.another() )
         ||
         someContext.attributeA.attributeA == 123.32
         ||
