@@ -7,6 +7,7 @@ import (
 	"time"
 )
 
+// GetFunctionList get list of functions in a struct instance
 func GetFunctionList(obj interface{}) ([]string, error) {
 	if !IsStruct(obj) {
 		return nil, errors.Errorf("param is not a struct")
@@ -20,6 +21,7 @@ func GetFunctionList(obj interface{}) ([]string, error) {
 	return ret, nil
 }
 
+// GetFunctionParameterTypes get list of parameter types of specific function in a struct instance
 func GetFunctionParameterTypes(obj interface{}, methodName string) ([]reflect.Type, error) {
 	if !IsStruct(obj) {
 		return nil, errors.Errorf("param is not a struct")
@@ -39,6 +41,7 @@ func GetFunctionParameterTypes(obj interface{}, methodName string) ([]reflect.Ty
 	return ret, nil
 }
 
+// GetFunctionReturnTypes get list of return types of specific function in a struct instance
 func GetFunctionReturnTypes(obj interface{}, methodName string) ([]reflect.Type, error) {
 	if !IsStruct(obj) {
 		return nil, errors.Errorf("param is not a struct")
@@ -58,6 +61,7 @@ func GetFunctionReturnTypes(obj interface{}, methodName string) ([]reflect.Type,
 	return ret, nil
 }
 
+// InvokeFunction invokes a specific function in a struct instance, using parameters array
 func InvokeFunction(obj interface{}, methodName string, param []interface{}) ([]interface{}, error) {
 	if !IsStruct(obj) {
 		return nil, errors.Errorf("param is not a struct")
@@ -76,6 +80,7 @@ func InvokeFunction(obj interface{}, methodName string, param []interface{}) ([]
 	return ret, nil
 }
 
+// IsValidField validates if an instance struct have a field with such name
 func IsValidField(obj interface{}, fieldName string) bool {
 	if !IsStruct(obj) {
 		return false
@@ -93,6 +98,7 @@ func IsValidField(obj interface{}, fieldName string) bool {
 	}
 }
 
+// IsStruct validates if an instance is struct or pointer to struct
 func IsStruct(obj interface{}) bool {
 	if !reflect.ValueOf(obj).IsValid() {
 		return false
@@ -105,6 +111,8 @@ func IsStruct(obj interface{}) bool {
 	}
 }
 
+// ValueToInterface will try to obtain an interface to a speciffic value.
+// it will detect the value's kind.
 func ValueToInterface(v reflect.Value) interface{} {
 	if v.Type().Kind() == reflect.String {
 		return v.String()
@@ -153,6 +161,7 @@ func ValueToInterface(v reflect.Value) interface{} {
 	}
 }
 
+// GetAttributeList will populate list of struct's public member variable.
 func GetAttributeList(obj interface{}) ([]string, error) {
 	if !IsStruct(obj) {
 		return nil, errors.Errorf("param is not a struct")
@@ -166,6 +175,7 @@ func GetAttributeList(obj interface{}) ([]string, error) {
 	return strRet, nil
 }
 
+// GetAttributeValue will retrieve a members variable value.
 func GetAttributeValue(obj interface{}, fieldName string) (reflect.Value, error) {
 	if !IsStruct(obj) {
 		return reflect.ValueOf(nil), errors.Errorf("param is not a struct")
@@ -183,6 +193,7 @@ func GetAttributeValue(obj interface{}, fieldName string) (reflect.Value, error)
 	return attrVal, nil
 }
 
+// GetAttributeInterface will retrieve a members variable value as usable interface.
 func GetAttributeInterface(obj interface{}, fieldName string) (interface{}, error) {
 	val, err := GetAttributeValue(obj, fieldName)
 	if err != nil {
@@ -192,6 +203,7 @@ func GetAttributeInterface(obj interface{}, fieldName string) (interface{}, erro
 	}
 }
 
+// GetAttributeType will return the type of a specific member variable
 func GetAttributeType(obj interface{}, fieldName string) (reflect.Type, error) {
 	if !IsStruct(obj) {
 		return nil, errors.Errorf("param is not a struct")
@@ -209,6 +221,7 @@ func GetAttributeType(obj interface{}, fieldName string) (reflect.Type, error) {
 	return attrVal.Type(), nil
 }
 
+// SetAttributeValue will try to set a member variable value with a new one.
 func SetAttributeValue(obj interface{}, fieldName string, value reflect.Value) error {
 	if !IsStruct(obj) {
 		return errors.Errorf("param is not a struct")
@@ -296,6 +309,7 @@ func SetAttributeValue(obj interface{}, fieldName string, value reflect.Value) e
 	return nil
 }
 
+// SetAttributeInterface will try to set a member variable value with a value from an interface
 func SetAttributeInterface(obj interface{}, fieldName string, value interface{}) error {
 	if !IsStruct(obj) {
 		return errors.Errorf("param is not a struct")
@@ -307,6 +321,7 @@ func SetAttributeInterface(obj interface{}, fieldName string, value interface{})
 	return SetAttributeValue(obj, fieldName, reflect.ValueOf(value))
 }
 
+// IsAttributeArray validate if a member variable is an array or a slice.
 func IsAttributeArray(obj interface{}, fieldName string) (bool, error) {
 	if !IsStruct(obj) {
 		return false, errors.Errorf("param is not a struct")
@@ -316,9 +331,10 @@ func IsAttributeArray(obj interface{}, fieldName string) (bool, error) {
 	}
 	objVal := reflect.ValueOf(obj)
 	fieldVal := objVal.Elem().FieldByName(fieldName)
-	return fieldVal.Type().Kind() == reflect.Array, nil
+	return fieldVal.Type().Kind() == reflect.Array || fieldVal.Type().Kind() == reflect.Slice, nil
 }
 
+// IsAttributeMap validate if a member variable is a map.
 func IsAttributeMap(obj interface{}, fieldName string) (bool, error) {
 	if !IsStruct(obj) {
 		return false, errors.Errorf("param is not a struct")
@@ -331,6 +347,7 @@ func IsAttributeMap(obj interface{}, fieldName string) (bool, error) {
 	return fieldVal.Type().Kind() == reflect.Map, nil
 }
 
+// IsAttributeNilOrZero validate if a member variable is nil or zero.
 func IsAttributeNilOrZero(obj interface{}, fieldName string) (bool, error) {
 	if !IsStruct(obj) {
 		return false, errors.Errorf("param is not a struct")
@@ -360,6 +377,7 @@ func IsAttributeNilOrZero(obj interface{}, fieldName string) (bool, error) {
 	}
 }
 
+// GetAttributeStringValue will try to obtain member variable's string value
 func GetAttributeStringValue(obj interface{}, fieldName string) (string, error) {
 	val, err := GetAttributeInterface(obj, fieldName)
 	if err != nil {
@@ -368,10 +386,12 @@ func GetAttributeStringValue(obj interface{}, fieldName string) (string, error) 
 	return val.(string), err
 }
 
+// SetAttributeStringValue will try to set member variable's string value
 func SetAttributeStringValue(obj interface{}, fieldName string, newValue string) error {
 	return SetAttributeInterface(obj, fieldName, newValue)
 }
 
+// GetAttributeIntValue will try to obtain member variable's int value
 func GetAttributeIntValue(obj interface{}, fieldName string) (int, error) {
 	val, err := GetAttributeInterface(obj, fieldName)
 	if err != nil {
@@ -381,10 +401,12 @@ func GetAttributeIntValue(obj interface{}, fieldName string) (int, error) {
 
 }
 
+// SetAttributeIntValue will try to set member variable's int value
 func SetAttributeIntValue(obj interface{}, fieldName string, newValue int) error {
 	return SetAttributeInterface(obj, fieldName, newValue)
 }
 
+// GetAttributeInt8Value will try to obtain member variable's int8 value
 func GetAttributeInt8Value(obj interface{}, fieldName string) (int8, error) {
 	val, err := GetAttributeInterface(obj, fieldName)
 	if err != nil {
@@ -393,10 +415,12 @@ func GetAttributeInt8Value(obj interface{}, fieldName string) (int8, error) {
 	return val.(int8), err
 }
 
+// ----- SetAttributeInt8Value will try to set member variable's int8 value
 func SetAttributeInt8Value(obj interface{}, fieldName string, newValue int8) error {
 	return SetAttributeInterface(obj, fieldName, newValue)
 }
 
+// GetAttributeInt16Value will try to obtain member variable's int16 value
 func GetAttributeInt16Value(obj interface{}, fieldName string) (int16, error) {
 	val, err := GetAttributeInterface(obj, fieldName)
 	if err != nil {
@@ -405,10 +429,12 @@ func GetAttributeInt16Value(obj interface{}, fieldName string) (int16, error) {
 	return val.(int16), err
 }
 
+// SetAttributeInt16Value will try to set member variable's int16 value
 func SetAttributeInt16Value(obj interface{}, fieldName string, newValue int16) error {
 	return SetAttributeInterface(obj, fieldName, newValue)
 }
 
+// GetAttributeInt32Value will try to obtain member variable's int32 value
 func GetAttributeInt32Value(obj interface{}, fieldName string) (int32, error) {
 	val, err := GetAttributeInterface(obj, fieldName)
 	if err != nil {
@@ -417,10 +443,12 @@ func GetAttributeInt32Value(obj interface{}, fieldName string) (int32, error) {
 	return val.(int32), err
 }
 
+// SetAttributeInt32Value will try to set member variable's int32 value
 func SetAttributeInt32Value(obj interface{}, fieldName string, newValue int32) error {
 	return SetAttributeInterface(obj, fieldName, newValue)
 }
 
+// GetAttributeInt64Value will try to obtain member variable's int64 value
 func GetAttributeInt64Value(obj interface{}, fieldName string) (int64, error) {
 	val, err := GetAttributeInterface(obj, fieldName)
 	if err != nil {
@@ -429,10 +457,12 @@ func GetAttributeInt64Value(obj interface{}, fieldName string) (int64, error) {
 	return val.(int64), err
 }
 
+// SetAttributeInt64Value will try to set member variable's int64 value
 func SetAttributeInt64Value(obj interface{}, fieldName string, newValue int64) error {
 	return SetAttributeInterface(obj, fieldName, newValue)
 }
 
+// GetAttributeUIntValue will try to obtain member variable's uint value
 func GetAttributeUIntValue(obj interface{}, fieldName string) (uint, error) {
 	val, err := GetAttributeInterface(obj, fieldName)
 	if err != nil {
@@ -441,10 +471,12 @@ func GetAttributeUIntValue(obj interface{}, fieldName string) (uint, error) {
 	return val.(uint), err
 }
 
+// SetAttributeUIntValue will try to set member variable's uint value
 func SetAttributeUIntValue(obj interface{}, fieldName string, newValue uint) error {
 	return SetAttributeInterface(obj, fieldName, newValue)
 }
 
+// GetAttributeUInt8Value will try to obtain member variable's uint8 value
 func GetAttributeUInt8Value(obj interface{}, fieldName string) (uint8, error) {
 	val, err := GetAttributeInterface(obj, fieldName)
 	if err != nil {
@@ -453,10 +485,12 @@ func GetAttributeUInt8Value(obj interface{}, fieldName string) (uint8, error) {
 	return val.(uint8), err
 }
 
+// SetAttributeUInt8Value will try to set member variable's uint8 value
 func SetAttributeUInt8Value(obj interface{}, fieldName string, newValue uint8) error {
 	return SetAttributeInterface(obj, fieldName, newValue)
 }
 
+// GetAttributeUInt16Value will try to obtain member variable's uint16 value
 func GetAttributeUInt16Value(obj interface{}, fieldName string) (uint16, error) {
 	val, err := GetAttributeInterface(obj, fieldName)
 	if err != nil {
@@ -465,10 +499,12 @@ func GetAttributeUInt16Value(obj interface{}, fieldName string) (uint16, error) 
 	return val.(uint16), err
 }
 
+// SetAttributeUInt16Value will try to set member variable's uint16 value
 func SetAttributeUInt16Value(obj interface{}, fieldName string, newValue uint16) error {
 	return SetAttributeInterface(obj, fieldName, newValue)
 }
 
+// GetAttributeUInt32Value will try to obtain member variable's uint32 value
 func GetAttributeUInt32Value(obj interface{}, fieldName string) (uint32, error) {
 	val, err := GetAttributeInterface(obj, fieldName)
 	if err != nil {
@@ -477,10 +513,12 @@ func GetAttributeUInt32Value(obj interface{}, fieldName string) (uint32, error) 
 	return val.(uint32), err
 }
 
+// SetAttributeUInt32Value will try to set member variable's uint32 value
 func SetAttributeUInt32Value(obj interface{}, fieldName string, newValue uint32) error {
 	return SetAttributeInterface(obj, fieldName, newValue)
 }
 
+// GetAttributeUInt64Value will try to obtain member variable's uint64 value
 func GetAttributeUInt64Value(obj interface{}, fieldName string) (uint64, error) {
 	val, err := GetAttributeInterface(obj, fieldName)
 	if err != nil {
@@ -489,10 +527,12 @@ func GetAttributeUInt64Value(obj interface{}, fieldName string) (uint64, error) 
 	return val.(uint64), err
 }
 
+// SetAttributeUInt64Value will try to set member variable's uint64 value
 func SetAttributeUInt64Value(obj interface{}, fieldName string, newValue uint64) error {
 	return SetAttributeInterface(obj, fieldName, newValue)
 }
 
+// GetAttributeBoolValue will try to obtain member variable's bool value
 func GetAttributeBoolValue(obj interface{}, fieldName string) (bool, error) {
 	val, err := GetAttributeInterface(obj, fieldName)
 	if err != nil {
@@ -501,9 +541,12 @@ func GetAttributeBoolValue(obj interface{}, fieldName string) (bool, error) {
 	return val.(bool), err
 }
 
+// SetAttributeBoolValue will try to set member variable's bool value
 func SetAttributeBoolValue(obj interface{}, fieldName string, newValue bool) error {
 	return SetAttributeInterface(obj, fieldName, newValue)
 }
+
+// GetAttributeFloat32Value will try to obtain member variable's float32 value
 func GetAttributeFloat32Value(obj interface{}, fieldName string) (float32, error) {
 	val, err := GetAttributeInterface(obj, fieldName)
 	if err != nil {
@@ -512,9 +555,12 @@ func GetAttributeFloat32Value(obj interface{}, fieldName string) (float32, error
 	return val.(float32), err
 }
 
+// SetAttributeFloat32Value will try to set member variable's float32 value
 func SetAttributeFloat32Value(obj interface{}, fieldName string, newValue float32) error {
 	return SetAttributeInterface(obj, fieldName, newValue)
 }
+
+// GetAttributeFloat64Value will try to obtain member variable's float64 value
 func GetAttributeFloat64Value(obj interface{}, fieldName string) (float64, error) {
 	val, err := GetAttributeInterface(obj, fieldName)
 	if err != nil {
@@ -523,10 +569,12 @@ func GetAttributeFloat64Value(obj interface{}, fieldName string) (float64, error
 	return val.(float64), err
 }
 
+// SetAttributeFloat64Value will try to set member variable's float64 value
 func SetAttributeFloat64Value(obj interface{}, fieldName string, newValue float64) error {
 	return SetAttributeInterface(obj, fieldName, newValue)
 }
 
+// GetAttributeTimeValue will try to obtain member variable's time.Time value
 func GetAttributeTimeValue(obj interface{}, fieldName string) (time.Time, error) {
 	val, err := GetAttributeInterface(obj, fieldName)
 	if err != nil {
@@ -535,10 +583,12 @@ func GetAttributeTimeValue(obj interface{}, fieldName string) (time.Time, error)
 	return val.(time.Time), err
 }
 
+// SetAttributeTimeValue will try to set member variable's time.Time value
 func SetAttributeTimeValue(obj interface{}, fieldName string, newValue time.Time) error {
 	return SetAttributeInterface(obj, fieldName, newValue)
 }
 
+// GetBaseKind will try to obtain base obtainable kind of a value, so we know what method to call val.Int(), val.Uint(), etc.
 func GetBaseKind(val reflect.Value) reflect.Kind {
 	switch val.Kind() {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:

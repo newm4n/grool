@@ -6,6 +6,8 @@ import (
 	"reflect"
 )
 
+// ValueAdd will try to do a mathematical addition between two values.
+// It will return another value as the result and an error if between the two values are not compatible for Addition
 func ValueAdd(a, b reflect.Value) (reflect.Value, error) {
 	aBkind := GetBaseKind(a)
 	bBkind := GetBaseKind(b)
@@ -60,14 +62,32 @@ func ValueAdd(a, b reflect.Value) (reflect.Value, error) {
 			return reflect.ValueOf(fmt.Sprintf("%s%f", a.String(), b.Float())), nil
 		case reflect.String:
 			return reflect.ValueOf(fmt.Sprintf("%s%s", a.String(), b.String())), nil
+		case reflect.Bool:
+			return reflect.ValueOf(fmt.Sprintf("%s%v", a.String(), b.Bool())), nil
+		case reflect.Ptr:
+			if b.CanInterface() {
+				return reflect.ValueOf(fmt.Sprintf("%s%v", a.String(), b.Interface())), nil
+			} else {
+				return reflect.ValueOf(nil), errors.Errorf("Can not do addition math operator between %s and non interface-able %s", a.Kind().String(), b.Kind().String())
+			}
 		default:
-			return reflect.ValueOf(nil), errors.Errorf("Can not do addition math operator between %s and %s", a.Kind().String(), b.Kind().String())
+			return reflect.ValueOf(fmt.Sprintf("%s%v", a.String(), b.String())), nil
 		}
 	default:
-		return reflect.ValueOf(nil), errors.Errorf("Can not do math operator between %s and %s", a.Kind().String(), b.Kind().String())
+		if bBkind == reflect.String {
+			if a.CanInterface() {
+				return reflect.ValueOf(fmt.Sprintf("%v%s", a.Interface(), b.String())), nil
+			} else {
+				return reflect.ValueOf(nil), errors.Errorf("Can not do addition math operator between non interface-able %s and %s", b.Kind().String(), a.Kind().String())
+			}
+		} else {
+			return reflect.ValueOf(nil), errors.Errorf("Can not do math operator between %s and %s", a.Kind().String(), b.Kind().String())
+		}
 	}
 }
 
+// ValueSub will try to do a mathematical substraction between two values.
+// It will return another value as the result and an error if between the two values are not compatible for substraction
 func ValueSub(a, b reflect.Value) (reflect.Value, error) {
 	aBkind := GetBaseKind(a)
 	bBkind := GetBaseKind(b)
@@ -111,6 +131,8 @@ func ValueSub(a, b reflect.Value) (reflect.Value, error) {
 	}
 }
 
+// ValueMul will try to do a mathematical multiplication between two values.
+// It will return another value as the result and an error if between the two values are not compatible for multiplication
 func ValueMul(a, b reflect.Value) (reflect.Value, error) {
 	aBkind := GetBaseKind(a)
 	bBkind := GetBaseKind(b)
@@ -154,6 +176,8 @@ func ValueMul(a, b reflect.Value) (reflect.Value, error) {
 	}
 }
 
+// ValueDiv will try to do a mathematical division between two values.
+// It will return another value as the result and an error if between the two values are not compatible for division
 func ValueDiv(a, b reflect.Value) (reflect.Value, error) {
 	aBkind := GetBaseKind(a)
 	bBkind := GetBaseKind(b)
