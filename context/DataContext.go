@@ -8,39 +8,44 @@ import (
 	"strings"
 )
 
+// NewDataContext will create a new DataContext instance
 func NewDataContext() *DataContext {
 	return &DataContext{
 		ObjectStore: make(map[string]interface{}),
 	}
 }
 
+// DataContext holds all structs instance to be used in rule execution environment.
 type DataContext struct {
 	ObjectStore         map[string]interface{}
 	VariableChangeCount uint64
 }
 
+// Add will add struct instance into rule execution context
 func (ctx *DataContext) Add(key string, obj interface{}) {
 	ctx.ObjectStore[key] = obj
 }
 
+// ExecMethod will execute instance member variable using the supplied arguments.
 func (ctx *DataContext) ExecMethod(methodName string, args []reflect.Value) (reflect.Value, error) {
 	varArray := strings.Split(methodName, ".")
 	if val, ok := ctx.ObjectStore[varArray[0]]; ok {
 		return traceMethod(val, varArray[1:], args)
-	} else {
-		return reflect.ValueOf(nil), errors.Errorf("data context not found '%s'", varArray[0])
 	}
+	return reflect.ValueOf(nil), errors.Errorf("data context not found '%s'", varArray[0])
 }
 
+// GetType will extract type information of data in this context.
 func (ctx *DataContext) GetType(variable string) (reflect.Type, error) {
 	varArray := strings.Split(variable, ".")
 	if val, ok := ctx.ObjectStore[varArray[0]]; ok {
 		return traceType(val, varArray[1:])
-	} else {
-		return nil, errors.Errorf("data context not found '%s'", varArray[0])
 	}
+	return nil, errors.Errorf("data context not found '%s'", varArray[0])
 }
 
+// GetValue will get member variables Value information.
+// Used by the rule execution to obtain variable value.
 func (ctx *DataContext) GetValue(variable string) (reflect.Value, error) {
 	varArray := strings.Split(variable, ".")
 	if val, ok := ctx.ObjectStore[varArray[0]]; ok {
@@ -49,11 +54,11 @@ func (ctx *DataContext) GetValue(variable string) (reflect.Value, error) {
 			fmt.Printf("blah %s = %v\n", variable, vval)
 		}
 		return vval, err
-	} else {
-		return reflect.ValueOf(nil), fmt.Errorf("data context not found '%s'", varArray[0])
 	}
+	return reflect.ValueOf(nil), fmt.Errorf("data context not found '%s'", varArray[0])
 }
 
+// SetValue will set variable value of an object instance in this data context, Used by rule script to set values.
 func (ctx *DataContext) SetValue(variable string, newValue reflect.Value) error {
 	varArray := strings.Split(variable, ".")
 	if val, ok := ctx.ObjectStore[varArray[0]]; ok {
@@ -62,95 +67,99 @@ func (ctx *DataContext) SetValue(variable string, newValue reflect.Value) error 
 			ctx.VariableChangeCount++
 		}
 		return err
-	} else {
-		return errors.Errorf("data context not found '%s'", varArray[0])
 	}
+	return errors.Errorf("data context not found '%s'", varArray[0])
 }
 
 func traceType(obj interface{}, path []string) (reflect.Type, error) {
-	if len(path) == 1 {
+	switch length := len(path); {
+	case length == 1:
 		return pkg.GetAttributeType(obj, path[0])
-	} else if len(path) > 1 {
+	case length > 1:
 		objVal, err := pkg.GetAttributeValue(obj, path[0])
 		if err != nil {
 			return nil, errors.Trace(err)
 		}
 		return traceType(pkg.ValueToInterface(objVal), path[1:])
-	} else {
+	default:
 		return reflect.TypeOf(obj), nil
 	}
 }
 
 func traceValue(obj interface{}, path []string) (reflect.Value, error) {
-	if len(path) == 1 {
+	switch length := len(path); {
+	case length == 1:
 		return pkg.GetAttributeValue(obj, path[0])
-	} else if len(path) > 1 {
+	case length > 1:
 		objVal, err := pkg.GetAttributeValue(obj, path[0])
 		if err != nil {
 			return objVal, errors.Trace(err)
 		}
 		return traceValue(pkg.ValueToInterface(objVal), path[1:])
-	} else {
+	default:
 		return reflect.ValueOf(obj), nil
 	}
 }
 
 func traceSetValue(obj interface{}, path []string, newValue reflect.Value) error {
-	if len(path) == 1 {
+	switch length := len(path); {
+	case length == 1:
 		return pkg.SetAttributeValue(obj, path[0], newValue)
-	} else if len(path) > 1 {
+	case length > 1:
 		objVal, err := pkg.GetAttributeValue(obj, path[0])
 		if err != nil {
 			return errors.Trace(err)
 		}
 		return traceSetValue(objVal, path[1:], newValue)
-	} else {
+	default:
 		return errors.Errorf("no attribute path specified")
 	}
 }
 
 func traceMethod(obj interface{}, path []string, args []reflect.Value) (reflect.Value, error) {
-	if len(path) == 1 {
+	switch length := len(path); {
+	case length == 1:
 		types, err := pkg.GetFunctionParameterTypes(obj, path[0])
 		if err != nil {
-			return reflect.ValueOf(nil), errors.Errorf("error while fetching function %s() parameter types.", path[0])
-		} else {
-			if len(types) != len(args) {
-				return reflect.ValueOf(nil), errors.Errorf("invalid argument count for function %s(). need %d argument while there are %d", path[0], len(types), len(args))
-			} else {
-				iargs := make([]interface{}, 0)
-				for i, t := range types {
-					if t.Kind() != args[i].Kind() {
-						if t.Kind() == reflect.Interface && args[i].Kind() == reflect.Struct {
-							iargs = append(iargs, pkg.ValueToInterface(args[i]))
-						} else {
-							return reflect.ValueOf(nil), errors.Errorf("invalid argument types for function %s(). argument #%d, require %s but %s", path[0], i, t.Kind().String(), args[i].Kind().String())
-						}
-					} else {
-						iargs = append(iargs, pkg.ValueToInterface(args[i]))
-					}
-				}
-				rets, err := pkg.InvokeFunction(obj, path[0], iargs)
-				if err != nil {
-					return reflect.ValueOf(nil), err
+			return reflect.ValueOf(nil),
+				errors.Errorf("error while fetching function %s() parameter types.", path[0])
+		}
+		if len(types) != len(args) {
+			return reflect.ValueOf(nil),
+				errors.Errorf("invalid argument count for function %s(). need %d argument while there are %d", path[0], len(types), len(args))
+		}
+		iargs := make([]interface{}, 0)
+		for i, t := range types {
+			if t.Kind() != args[i].Kind() {
+				if t.Kind() == reflect.Interface && args[i].Kind() == reflect.Struct {
+					iargs = append(iargs, pkg.ValueToInterface(args[i]))
 				} else {
-					if len(rets) > 1 {
-						return reflect.ValueOf(rets[0]), errors.Errorf("multiple return value for function %s(). ", path[0])
-					} else if len(rets) == 1 {
-						return reflect.ValueOf(rets[0]), nil
-					} else {
-						return reflect.ValueOf(nil), nil
-					}
+					return reflect.ValueOf(nil),
+						errors.Errorf("invalid argument types for function %s(). argument #%d, require %s but %s", path[0], i, t.Kind().String(), args[i].Kind().String())
 				}
+			} else {
+				iargs = append(iargs, pkg.ValueToInterface(args[i]))
 			}
 		}
-	} else if len(path) > 1 {
+		rets, err := pkg.InvokeFunction(obj, path[0], iargs)
+		if err != nil {
+			return reflect.ValueOf(nil), err
+		}
+		switch retLen := len(rets); {
+		case retLen > 1:
+			return reflect.ValueOf(rets[0]), errors.Errorf("multiple return value for function %s(). ", path[0])
+		case retLen == 1:
+			return reflect.ValueOf(rets[0]), nil
+		default:
+			return reflect.ValueOf(nil), nil
+		}
+	case length > 1:
 		objVal, err := pkg.GetAttributeValue(obj, path[0])
 		if err != nil {
 			return reflect.ValueOf(nil), errors.Trace(err)
 		}
 		return traceMethod(objVal, path[1:], args)
-	} else {
+	default:
 		return reflect.ValueOf(nil), errors.Errorf("no function path specified")
 	}
 }

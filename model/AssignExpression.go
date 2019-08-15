@@ -47,9 +47,10 @@ func (ae *AssignExpression) AcceptMethodCall(methodCall *MethodCall) error {
 func (ae *AssignExpression) Evaluate() (reflect.Value, error) {
 	if ae.Assignment != nil {
 		return ae.Assignment.Evaluate()
-	} else if ae.FunctionCall != nil {
-		return ae.FunctionCall.Evaluate()
-	} else {
-		return reflect.ValueOf(nil), errors.Errorf("no assignment or function call to evaluate")
 	}
+	if ae.FunctionCall != nil {
+		return ae.FunctionCall.Evaluate()
+	}
+	return reflect.ValueOf(nil), errors.Errorf("no assignment or function call to evaluate")
+
 }

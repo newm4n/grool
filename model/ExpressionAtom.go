@@ -108,16 +108,14 @@ func (exprAtm *ExpressionAtom) AcceptVariable(name string) error {
 	if exprAtm.Variable == "" {
 		exprAtm.Variable = name
 		return nil
-	} else {
-		return errors.Errorf("variable already defined")
 	}
+	return errors.Errorf("variable already defined")
 }
 
 func (exprAtm *ExpressionAtom) AcceptConstant(cons *Constant) error {
 	if exprAtm.Constant == nil {
 		exprAtm.Constant = cons
 		return nil
-	} else {
-		return errors.Errorf("constant already defined")
 	}
+	return errors.Errorf("constant already defined")
 }

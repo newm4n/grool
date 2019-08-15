@@ -5,6 +5,7 @@ import (
 	"github.com/newm4n/grool/context"
 )
 
+// ThenScope holds the language graph for then expressions.
 type ThenScope struct {
 	AssignExpressions *AssignExpressions
 	knowledgeContext  *context.KnowledgeContext
@@ -12,6 +13,7 @@ type ThenScope struct {
 	dataCtx           *context.DataContext
 }
 
+// Initialize will init this object graph prior execution
 func (then *ThenScope) Initialize(knowledgeContext *context.KnowledgeContext, ruleCtx *context.RuleContext, dataCtx *context.DataContext) {
 	then.knowledgeContext = knowledgeContext
 	then.ruleCtx = ruleCtx
@@ -21,11 +23,11 @@ func (then *ThenScope) Initialize(knowledgeContext *context.KnowledgeContext, ru
 	}
 }
 
+// Execute this graph against underlying facts.
 func (then *ThenScope) Execute() error {
 	_, err := then.AssignExpressions.Evaluate()
 	if err != nil {
 		return errors.Trace(err)
-	} else {
-		return nil
 	}
+	return nil
 }

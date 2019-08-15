@@ -51,23 +51,21 @@ func (expr *Expression) AcceptExpression(expression *Expression) error {
 func (expr *Expression) Evaluate() (reflect.Value, error) {
 	if expr.Predicate != nil {
 		return expr.Predicate.Evaluate()
+	}
+	lv, err := expr.LeftExpression.Evaluate()
+	if err != nil {
+		return lv, errors.Trace(err)
+	}
+	rv, err := expr.RightExpression.Evaluate()
+	if err != nil {
+		return rv, errors.Trace(err)
+	}
+	if rv.Kind() == lv.Kind() && rv.Kind() == reflect.Bool {
+		if expr.LogicalOperator == LogicalOperatorAnd {
+			return reflect.ValueOf(lv.Bool() && rv.Bool()), nil
+		}
+		return reflect.ValueOf(lv.Bool() || rv.Bool()), nil
 	} else {
-		lv, err := expr.LeftExpression.Evaluate()
-		if err != nil {
-			return lv, errors.Trace(err)
-		}
-		rv, err := expr.RightExpression.Evaluate()
-		if err != nil {
-			return rv, errors.Trace(err)
-		}
-		if rv.Kind() == lv.Kind() && rv.Kind() == reflect.Bool {
-			if expr.LogicalOperator == LogicalOperatorAnd {
-				return reflect.ValueOf(lv.Bool() && rv.Bool()), nil
-			} else {
-				return reflect.ValueOf(lv.Bool() || rv.Bool()), nil
-			}
-		} else {
-			return reflect.ValueOf(nil), errors.Errorf("cannot apply logical for non boolean expression")
-		}
+		return reflect.ValueOf(nil), errors.Errorf("cannot apply logical for non boolean expression")
 	}
 }

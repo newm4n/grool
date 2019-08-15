@@ -40,7 +40,7 @@ func (g *Grool) Execute(dataCtx *context.DataContext, knowledge *model.Knowledge
 		We need to add safety mechanism to detect unlimitted loop as there are posibility executed rule are not changing
 		data context which makes rules to get executed again and again.
 	*/
-	for true {
+	for {
 		cycle++
 
 		if cycle > g.MaxCycle {

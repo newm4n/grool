@@ -23,9 +23,8 @@ func (funcArg *FunctionArgument) EvaluateArguments() ([]reflect.Value, error) {
 		rv, err := v.Evaluate()
 		if err != nil {
 			return retVal, errors.Trace(err)
-		} else {
-			retVal[i] = rv
 		}
+		retVal[i] = rv
 	}
 	return retVal, nil
 }

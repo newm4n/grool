@@ -5,6 +5,7 @@ import (
 	"github.com/newm4n/grool/context"
 )
 
+// RuleEntry represent the language graph of a single rule entry.
 type RuleEntry struct {
 	Salience         int64
 	RuleName         string
@@ -16,11 +17,13 @@ type RuleEntry struct {
 	dataCtx          *context.DataContext
 }
 
+// AcceptDecimal will store salience information.
 func (entry *RuleEntry) AcceptDecimal(val int64) error {
 	entry.Salience = val
 	return nil
 }
 
+// Initialize will init this graph prior execution.
 func (entry *RuleEntry) Initialize(knowledgeContext *context.KnowledgeContext, ruleCtx *context.RuleContext, dataCtx *context.DataContext) {
 	entry.knowledgeContext = knowledgeContext
 	entry.ruleCtx = ruleCtx
@@ -35,6 +38,7 @@ func (entry *RuleEntry) Initialize(knowledgeContext *context.KnowledgeContext, r
 	}
 }
 
+// CanExecute Test whether this rule entry are eligible for execution by the rule engine with the underlying data.
 func (entry *RuleEntry) CanExecute() (bool, error) {
 	bol, err := entry.WhenScope.ExecuteWhen()
 	if err != nil {
@@ -43,6 +47,7 @@ func (entry *RuleEntry) CanExecute() (bool, error) {
 	return bol, nil
 }
 
+// Execute will execute the action part of the rule entry.
 func (entry *RuleEntry) Execute() error {
 	return entry.ThenScope.Execute()
 }

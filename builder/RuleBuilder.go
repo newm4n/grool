@@ -65,8 +65,7 @@ func (builder *RuleBuilder) BuildRuleFromResource(resource pkg.Resource) error {
 	if len(listener.ParseErrors) > 0 {
 		log.Errorf("Loading rule resource : %s failed. Got %d errors. 1st error : %v", resource.String(), len(listener.ParseErrors), listener.ParseErrors[0])
 		return errors.Errorf("error were found before builder bailing out. %d errors. 1st error : %v", len(listener.ParseErrors), listener.ParseErrors[0])
-	} else {
-		log.Debugf("Loading rule resource : %s success", resource.String())
-		return nil
 	}
+	log.Debugf("Loading rule resource : %s success", resource.String())
+	return nil
 }

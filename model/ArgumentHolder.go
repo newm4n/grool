@@ -43,13 +43,15 @@ func (ah *ArgumentHolder) Initialize(knowledgeContext *context.KnowledgeContext,
 func (ah *ArgumentHolder) Evaluate() (reflect.Value, error) {
 	if len(ah.Variable) > 0 {
 		return ah.dataCtx.GetValue(ah.Variable)
-	} else if ah.Constant != nil {
-		return ah.Constant.Evaluate()
-	} else if ah.FunctionCall != nil {
-		return ah.FunctionCall.Evaluate()
-	} else if ah.Expression != nil {
-		return ah.Expression.Evaluate()
-	} else {
-		return reflect.ValueOf(nil), fmt.Errorf("argument holder stores no value")
 	}
+	if ah.Constant != nil {
+		return ah.Constant.Evaluate()
+	}
+	if ah.FunctionCall != nil {
+		return ah.FunctionCall.Evaluate()
+	}
+	if ah.Expression != nil {
+		return ah.Expression.Evaluate()
+	}
+	return reflect.ValueOf(nil), fmt.Errorf("argument holder stores no value")
 }

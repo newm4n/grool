@@ -7,6 +7,7 @@ import (
 	"time"
 )
 
+// GroolFunctions strucr hosts the built-in functions ready to invoke from the rule engine execution.
 type GroolFunctions struct {
 }
 
@@ -14,42 +15,47 @@ func (gf *GroolFunctions) MakeTime(year, month, day, hour, minute, second int64)
 	return time.Date(int(year), time.Month(month), int(day), int(hour), int(minute), int(second), 0, time.Local)
 }
 
+// Now is an extension tn time.Now().
 func (gf *GroolFunctions) Now() time.Time {
 	return time.Now()
 }
 
+// Log extension to log.Print
 func (gf *GroolFunctions) Log(text string) {
 	log.Println(text)
 }
 
+// Enables nill checking on variables.
 func (gf *GroolFunctions) IsNil(i interface{}) bool {
 	val := reflect.ValueOf(i)
 	if val.Kind() == reflect.Struct {
 		return false
 	}
-	return val.IsValid() == false || val.IsNil()
+	return !val.IsValid() || val.IsNil()
 }
 
+// Enable zero checking
 func (gf *GroolFunctions) IsZero(i interface{}) bool {
 	val := reflect.ValueOf(i)
-	if val.Kind() == reflect.Struct {
+	switch val.Kind() {
+	case reflect.Struct:
 		if val.Type().String() == "time.Time" {
 			return i.(time.Time).IsZero()
-		} else {
-			return false
 		}
-	} else if val.Kind() == reflect.Ptr {
+		return false
+	case reflect.Ptr:
 		return val.IsNil()
-	} else {
-		if pkg.GetBaseKind(val) == reflect.String {
+	default:
+		switch pkg.GetBaseKind(val) {
+		case reflect.String:
 			return len(val.String()) == 0
-		} else if pkg.GetBaseKind(val) == reflect.Int64 {
+		case reflect.Int64:
 			return val.Int() == 0
-		} else if pkg.GetBaseKind(val) == reflect.Uint64 {
+		case reflect.Uint64:
 			return val.Uint() == 0
-		} else if pkg.GetBaseKind(val) == reflect.Float64 {
+		case reflect.Float64:
 			return val.Float() == 0
-		} else {
+		default:
 			return false
 		}
 	}

@@ -106,9 +106,8 @@ func IsStruct(obj interface{}) bool {
 	objType := reflect.TypeOf(obj)
 	if objType.Kind() != reflect.Ptr {
 		return objType.Kind() == reflect.Struct
-	} else {
-		return objType.Elem().Kind() == reflect.Struct
 	}
+	return objType.Elem().Kind() == reflect.Struct
 }
 
 // ValueToInterface will try to obtain an interface to a speciffic value.
@@ -116,48 +115,46 @@ func IsStruct(obj interface{}) bool {
 func ValueToInterface(v reflect.Value) interface{} {
 	if v.Type().Kind() == reflect.String {
 		return v.String()
-	} else {
-		switch v.Type().Kind() {
-		case reflect.Int:
-			return int(v.Int())
-		case reflect.Int8:
-			return int8(v.Int())
-		case reflect.Int16:
-			return int16(v.Int())
-		case reflect.Int32:
-			return int32(v.Int())
-		case reflect.Int64:
-			return v.Int()
-		case reflect.Uint:
-			return uint(v.Uint())
-		case reflect.Uint8:
-			return uint8(v.Uint())
-		case reflect.Uint16:
-			return uint16(v.Uint())
-		case reflect.Uint32:
-			return uint32(v.Uint())
-		case reflect.Uint64:
-			return v.Uint()
-		case reflect.Float32:
-			return float32(v.Float())
-		case reflect.Float64:
-			return v.Float()
-		case reflect.Bool:
-			return v.Bool()
-		case reflect.Ptr:
-			newPtr := reflect.New(v.Elem().Type())
-			newPtr.Elem().Set(v.Elem())
-			return newPtr.Interface()
-		case reflect.Struct:
-			if v.CanInterface() {
-				return v.Interface()
-			} else {
-				logrus.Errorf("Can't interface value of struct %v", v)
-				return nil
-			}
-		default:
-			return nil
+	}
+	switch v.Type().Kind() {
+	case reflect.Int:
+		return int(v.Int())
+	case reflect.Int8:
+		return int8(v.Int())
+	case reflect.Int16:
+		return int16(v.Int())
+	case reflect.Int32:
+		return int32(v.Int())
+	case reflect.Int64:
+		return v.Int()
+	case reflect.Uint:
+		return uint(v.Uint())
+	case reflect.Uint8:
+		return uint8(v.Uint())
+	case reflect.Uint16:
+		return uint16(v.Uint())
+	case reflect.Uint32:
+		return uint32(v.Uint())
+	case reflect.Uint64:
+		return v.Uint()
+	case reflect.Float32:
+		return float32(v.Float())
+	case reflect.Float64:
+		return v.Float()
+	case reflect.Bool:
+		return v.Bool()
+	case reflect.Ptr:
+		newPtr := reflect.New(v.Elem().Type())
+		newPtr.Elem().Set(v.Elem())
+		return newPtr.Interface()
+	case reflect.Struct:
+		if v.CanInterface() {
+			return v.Interface()
 		}
+		logrus.Errorf("Can't interface value of struct %v", v)
+		return nil
+	default:
+		return nil
 	}
 }
 
@@ -198,9 +195,8 @@ func GetAttributeInterface(obj interface{}, fieldName string) (interface{}, erro
 	val, err := GetAttributeValue(obj, fieldName)
 	if err != nil {
 		return nil, err
-	} else {
-		return ValueToInterface(val), nil
 	}
+	return ValueToInterface(val), nil
 }
 
 // GetAttributeType will return the type of a specific member variable
@@ -415,7 +411,7 @@ func GetAttributeInt8Value(obj interface{}, fieldName string) (int8, error) {
 	return val.(int8), err
 }
 
-// ----- SetAttributeInt8Value will try to set member variable's int8 value
+// SetAttributeInt8Value will try to set member variable's int8 value
 func SetAttributeInt8Value(obj interface{}, fieldName string, newValue int8) error {
 	return SetAttributeInterface(obj, fieldName, newValue)
 }

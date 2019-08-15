@@ -38,9 +38,8 @@ func (assign *Assignment) AcceptVariable(name string) error {
 	if assign.Variable == "" {
 		assign.Variable = name
 		return nil
-	} else {
-		return errors.Errorf("variable already defined")
 	}
+	return errors.Errorf("variable already defined")
 }
 
 // Evaluate the object graph against underlined context or execute evaluation in the sub graph.

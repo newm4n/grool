@@ -67,9 +67,8 @@ func ValueAdd(a, b reflect.Value) (reflect.Value, error) {
 		case reflect.Ptr:
 			if b.CanInterface() {
 				return reflect.ValueOf(fmt.Sprintf("%s%v", a.String(), b.Interface())), nil
-			} else {
-				return reflect.ValueOf(nil), errors.Errorf("Can not do addition math operator between %s and non interface-able %s", a.Kind().String(), b.Kind().String())
 			}
+			return reflect.ValueOf(nil), errors.Errorf("Can not do addition math operator between %s and non interface-able %s", a.Kind().String(), b.Kind().String())
 		default:
 			return reflect.ValueOf(fmt.Sprintf("%s%v", a.String(), b.String())), nil
 		}
@@ -77,12 +76,10 @@ func ValueAdd(a, b reflect.Value) (reflect.Value, error) {
 		if bBkind == reflect.String {
 			if a.CanInterface() {
 				return reflect.ValueOf(fmt.Sprintf("%v%s", a.Interface(), b.String())), nil
-			} else {
-				return reflect.ValueOf(nil), errors.Errorf("Can not do addition math operator between non interface-able %s and %s", b.Kind().String(), a.Kind().String())
 			}
-		} else {
-			return reflect.ValueOf(nil), errors.Errorf("Can not do math operator between %s and %s", a.Kind().String(), b.Kind().String())
+			return reflect.ValueOf(nil), errors.Errorf("Can not do addition math operator between non interface-able %s and %s", b.Kind().String(), a.Kind().String())
 		}
+		return reflect.ValueOf(nil), errors.Errorf("Can not do math operator between %s and %s", a.Kind().String(), b.Kind().String())
 	}
 }
 

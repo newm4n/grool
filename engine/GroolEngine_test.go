@@ -111,7 +111,7 @@ func TestGrool_Execute(t *testing.T) {
 			t.Errorf("Got error : %v", err)
 			t.FailNow()
 		} else {
-			dur := time.Now().Sub(start)
+			dur := time.Since(start)
 			t.Log(dr.TotalDistance)
 			t.Logf("Duration %f ms", float64(dur)/float64(time.Millisecond))
 		}
