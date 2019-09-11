@@ -79,7 +79,7 @@ rule SetTime "When Distance Recorder time not set, set it." {
 	then
 		Log("Set the test time");
 		DistanceRecord.TestTime = Now();
-		Log(DistanceRecord.TestTime.Format("Mon Jan _2 15:04:05 2006"));
+		Log(TimeFormat(DistanceRecord.TestTime,"Mon Jan _2 15:04:05 2006"));
 }
 `
 )
