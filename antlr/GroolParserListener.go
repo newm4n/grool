@@ -525,7 +525,7 @@ func (s *GroolParserListener) ExitStringLiteral(ctx *parser.StringLiteralContext
 		return
 	}
 	cons := s.Stack.Peek().(*model.Constant)
-	cons.ConstantValue = reflect.ValueOf(ctx.GetText())
+	cons.ConstantValue = reflect.ValueOf(strings.Trim(ctx.GetText(), "\"'"))
 }
 
 // EnterBooleanLiteral is called when production booleanLiteral is entered.
