@@ -272,12 +272,15 @@ func (s *GroolParserListener) EnterExpressionAtom(ctx *parser.ExpressionAtomCont
 	if len(s.ParseErrors) > 0 {
 		return
 	}
-	exprAtom := &model.ExpressionAtom{}
+	exprAtom := &model.ExpressionAtom{
+		Text: ctx.GetText(),
+	}
 	s.Stack.Push(exprAtom)
 }
 
 // ExitExpressionAtom is called when production expressionAtom is exited.
 func (s *GroolParserListener) ExitExpressionAtom(ctx *parser.ExpressionAtomContext) {
+	//fmt.Println(ctx.GetText())
 	exprAtom := s.Stack.Pop().(*model.ExpressionAtom)
 	// return immediately when there's an error
 	if len(s.ParseErrors) > 0 {

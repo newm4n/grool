@@ -60,6 +60,7 @@ expressionAtom
     : constant
     | variable
     | left=expressionAtom mathOperator right=expressionAtom
+    | LR_BRACKET left=expressionAtom mathOperator right=expressionAtom RR_BRACKET
     | functionCall
     | methodCall
     ;

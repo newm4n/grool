@@ -1,6 +1,7 @@
 package context
 
 import (
+	"github.com/newm4n/grool/model"
 	"github.com/newm4n/grool/pkg"
 	"log"
 	"reflect"
@@ -9,6 +10,7 @@ import (
 
 // GroolFunctions strucr hosts the built-in functions ready to invoke from the rule engine execution.
 type GroolFunctions struct {
+	knowledge *model.KnowledgeBase
 }
 
 func (gf *GroolFunctions) MakeTime(year, month, day, hour, minute, second int64) time.Time {
@@ -59,4 +61,8 @@ func (gf *GroolFunctions) IsZero(i interface{}) bool {
 			return false
 		}
 	}
+}
+
+func (gf *GroolFunctions) Retract(ruleName string) {
+	gf.knowledge.Retract(ruleName)
 }

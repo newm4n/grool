@@ -12,7 +12,7 @@ import (
 )
 
 func TestLexer(t *testing.T) {
-	data, err := ioutil.ReadFile("./sample.grool")
+	data, err := ioutil.ReadFile("./sample2.grool")
 	if err != nil {
 		t.Fatal(err)
 	} else {
@@ -34,7 +34,7 @@ func TestLexer(t *testing.T) {
 }
 
 func TestParser(t *testing.T) {
-	data, err := ioutil.ReadFile("./sample.grool")
+	data, err := ioutil.ReadFile("./sample2.grool")
 	if err != nil {
 		t.Fatal(err)
 	} else {
