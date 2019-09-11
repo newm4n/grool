@@ -1,16 +1,16 @@
-package context
+package model
 
 import (
-	"github.com/newm4n/grool/model"
 	"github.com/newm4n/grool/pkg"
 	"log"
 	"reflect"
+	"strings"
 	"time"
 )
 
 // GroolFunctions strucr hosts the built-in functions ready to invoke from the rule engine execution.
 type GroolFunctions struct {
-	knowledge *model.KnowledgeBase
+	Knowledge *KnowledgeBase
 }
 
 func (gf *GroolFunctions) MakeTime(year, month, day, hour, minute, second int64) time.Time {
@@ -64,5 +64,41 @@ func (gf *GroolFunctions) IsZero(i interface{}) bool {
 }
 
 func (gf *GroolFunctions) Retract(ruleName string) {
-	gf.knowledge.Retract(ruleName)
+	gf.Knowledge.Retract(strings.ReplaceAll(ruleName, "\"", ""))
+}
+
+func (gf *GroolFunctions) GetTimeYear(time time.Time) int {
+	return time.Year()
+}
+
+func (gf *GroolFunctions) GetTimeMonth(time time.Time) int {
+	return int(time.Month())
+}
+
+func (gf *GroolFunctions) GetTimeDay(time time.Time) int {
+	return time.Day()
+}
+
+func (gf *GroolFunctions) GetTimeHour(time time.Time) int {
+	return time.Hour()
+}
+
+func (gf *GroolFunctions) GetTimeMinute(time time.Time) int {
+	return time.Minute()
+}
+
+func (gf *GroolFunctions) GetTimeSecond(time time.Time) int {
+	return time.Second()
+}
+
+func (gf *GroolFunctions) IsTimeBefore(time, before time.Time) bool {
+	return time.Before(before)
+}
+
+func (gf *GroolFunctions) IsTimeAfter(time, before time.Time) bool {
+	return time.After(before)
+}
+
+func (gf *GroolFunctions) TimeFormat(time time.Time, layout string) string {
+	return time.Format(layout)
 }

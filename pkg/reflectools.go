@@ -29,6 +29,8 @@ func GetFunctionParameterTypes(obj interface{}, methodName string) ([]reflect.Ty
 	ret := make([]reflect.Type, 0)
 	objType := reflect.TypeOf(obj)
 
+	//fmt.Println(objType.String())
+
 	meth, found := objType.MethodByName(methodName)
 	if found {
 		x := meth.Type

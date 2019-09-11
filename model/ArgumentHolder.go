@@ -50,6 +50,9 @@ func (ah *ArgumentHolder) Evaluate() (reflect.Value, error) {
 	if ah.FunctionCall != nil {
 		return ah.FunctionCall.Evaluate()
 	}
+	if ah.MethodCall != nil {
+		return ah.MethodCall.Evaluate()
+	}
 	if ah.Expression != nil {
 		return ah.Expression.Evaluate()
 	}

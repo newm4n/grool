@@ -15,6 +15,8 @@ type RuleEntry struct {
 	knowledgeContext *context.KnowledgeContext
 	ruleCtx          *context.RuleContext
 	dataCtx          *context.DataContext
+
+	Retracted bool
 }
 
 // AcceptDecimal will store salience information.
@@ -40,6 +42,9 @@ func (entry *RuleEntry) Initialize(knowledgeContext *context.KnowledgeContext, r
 
 // CanExecute Test whether this rule entry are eligible for execution by the rule engine with the underlying data.
 func (entry *RuleEntry) CanExecute() (bool, error) {
+	if entry.Retracted {
+		return false, nil
+	}
 	bol, err := entry.WhenScope.ExecuteWhen()
 	if err != nil {
 		return false, errors.Trace(err)

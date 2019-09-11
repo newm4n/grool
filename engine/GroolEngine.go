@@ -24,10 +24,14 @@ type Grool struct {
 // Execute function will execute a knowledge evaluation and action against data context.
 // The engine also do conflict resolution of which rule to execute.
 func (g *Grool) Execute(dataCtx *context.DataContext, knowledge *model.KnowledgeBase) error {
-	defunc := &context.GroolFunctions{}
+	defunc := &model.GroolFunctions{
+		Knowledge: knowledge,
+	}
 	kctx := &context.KnowledgeContext{}
 	rctx := &context.RuleContext{}
 	dataCtx.Add("DEFUNC", defunc)
+
+	knowledge.Reset()
 
 	for _, v := range knowledge.RuleEntries {
 		v.Initialize(kctx, rctx, dataCtx)
@@ -36,7 +40,7 @@ func (g *Grool) Execute(dataCtx *context.DataContext, knowledge *model.Knowledge
 	var cycle uint64
 
 	/*
-		Un-limitted loop as long as there are rule to execute.
+		Un-limitted loop as long as there are rule to exsecute.
 		We need to add safety mechanism to detect unlimitted loop as there are posibility executed rule are not changing
 		data context which makes rules to get executed again and again.
 	*/
@@ -76,7 +80,7 @@ func (g *Grool) Execute(dataCtx *context.DataContext, knowledge *model.Knowledge
 			for _, r := range runnable {
 				// reset the counter to 0 to detect if there are variable change.
 				dataCtx.VariableChangeCount = 0
-				//log.Infof("Executing rule : %s. Salience %d", r.RuleName, r.Salience)
+				log.Infof("Executing rule : %s. Salience %d", r.RuleName, r.Salience)
 				err := r.Execute()
 				if err != nil {
 					log.Errorf("Failed execution rule : %s. Got error %v", r.RuleName, err)

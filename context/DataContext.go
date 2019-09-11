@@ -117,12 +117,14 @@ func traceSetValue(obj interface{}, path []string, newValue reflect.Value) error
 }
 
 func traceMethod(obj interface{}, path []string, args []reflect.Value) (reflect.Value, error) {
+
 	switch length := len(path); {
 	case length == 1:
+		// this obj is reflect.Value... it should not.
 		types, err := pkg.GetFunctionParameterTypes(obj, path[0])
 		if err != nil {
 			return reflect.ValueOf(nil),
-				errors.Errorf("error while fetching function %s() parameter types.", path[0])
+				errors.Errorf("error while fetching function %s() parameter types. Got %v", path[0], err)
 		}
 		if len(types) != len(args) {
 			return reflect.ValueOf(nil),

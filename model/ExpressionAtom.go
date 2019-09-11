@@ -4,10 +4,12 @@ import (
 	"github.com/juju/errors"
 	"github.com/newm4n/grool/context"
 	"github.com/newm4n/grool/pkg"
+	"github.com/sirupsen/logrus"
 	"reflect"
 )
 
 type ExpressionAtom struct {
+	Text                string
 	ExpressionAtomLeft  *ExpressionAtom
 	ExpressionAtomRight *ExpressionAtom
 	MathOperator        MathOperator
@@ -22,13 +24,21 @@ type ExpressionAtom struct {
 
 // Evaluate the object graph against underlined context or execute evaluation in the sub graph.
 func (exprAtm *ExpressionAtom) Evaluate() (reflect.Value, error) {
+	//logrus.Tracef("ExpressionAtom : %s", exprAtm.Text)
 	if len(exprAtm.Variable) > 0 {
+		logrus.Tracef("ExpressionAtom Variable : %s", exprAtm.Text)
 		return exprAtm.dataCtx.GetValue(exprAtm.Variable)
 	} else if exprAtm.Constant != nil {
+		logrus.Tracef("ExpressionAtom Constant : %s", exprAtm.Text)
 		return exprAtm.Constant.Evaluate()
 	} else if exprAtm.FunctionCall != nil {
+		logrus.Tracef("ExpressionAtom Function : %s", exprAtm.Text)
 		return exprAtm.FunctionCall.Evaluate()
+	} else if exprAtm.MethodCall != nil {
+		logrus.Tracef("MethodCall Function : %s", exprAtm.Text)
+		return exprAtm.MethodCall.Evaluate()
 	} else {
+		logrus.Tracef("ExpressionAtom MathOps : %s", exprAtm.Text)
 		lv, err := exprAtm.ExpressionAtomLeft.Evaluate()
 		if err != nil {
 			return reflect.ValueOf(nil), errors.Trace(err)
