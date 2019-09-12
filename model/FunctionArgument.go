@@ -6,6 +6,7 @@ import (
 	"reflect"
 )
 
+// FunctionArgument stores set of argument within a function call.
 type FunctionArgument struct {
 	Arguments        []*ArgumentHolder
 	knowledgeContext *context.KnowledgeContext
@@ -29,6 +30,7 @@ func (funcArg *FunctionArgument) EvaluateArguments() ([]reflect.Value, error) {
 	return retVal, nil
 }
 
+// Initialize will prepare this set of arguments with contexts.
 func (funcArg *FunctionArgument) Initialize(knowledgeContext *context.KnowledgeContext, ruleCtx *context.RuleContext, dataCtx *context.DataContext) {
 	funcArg.knowledgeContext = knowledgeContext
 	funcArg.ruleCtx = ruleCtx
@@ -41,6 +43,7 @@ func (funcArg *FunctionArgument) Initialize(knowledgeContext *context.KnowledgeC
 	}
 }
 
+// AcceptExpression add an expression into function arguments.
 func (funcArg *FunctionArgument) AcceptExpression(expression *Expression) error {
 	holder := &ArgumentHolder{
 		Expression: expression,
@@ -49,6 +52,7 @@ func (funcArg *FunctionArgument) AcceptExpression(expression *Expression) error 
 	return nil
 }
 
+// AcceptFunctionCall add a function call into function arguments.
 func (funcArg *FunctionArgument) AcceptFunctionCall(funcCall *FunctionCall) error {
 	holder := &ArgumentHolder{
 		FunctionCall: funcCall,
@@ -57,6 +61,7 @@ func (funcArg *FunctionArgument) AcceptFunctionCall(funcCall *FunctionCall) erro
 	return nil
 }
 
+// AcceptMethodCall add a method call into function argument.
 func (funcArg *FunctionArgument) AcceptMethodCall(methodCall *MethodCall) error {
 	holder := &ArgumentHolder{
 		MethodCall: methodCall,
@@ -65,6 +70,7 @@ func (funcArg *FunctionArgument) AcceptMethodCall(methodCall *MethodCall) error 
 	return nil
 }
 
+// AcceptVariable add a variable into function argument.
 func (funcArg *FunctionArgument) AcceptVariable(name string) error {
 	holder := &ArgumentHolder{
 		Variable: name,
@@ -73,6 +79,7 @@ func (funcArg *FunctionArgument) AcceptVariable(name string) error {
 	return nil
 }
 
+// AcceptConstant add a constant into function argument.
 func (funcArg *FunctionArgument) AcceptConstant(cons *Constant) error {
 	holder := &ArgumentHolder{
 		Constant: cons,

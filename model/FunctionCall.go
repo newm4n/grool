@@ -7,6 +7,7 @@ import (
 	"reflect"
 )
 
+// FunctionCall defines function structure which defines its name and arguments.
 type FunctionCall struct {
 	FunctionName      string
 	FunctionArguments *FunctionArgument
@@ -15,11 +16,13 @@ type FunctionCall struct {
 	dataCtx           *context.DataContext
 }
 
+// AcceptFunctionArgument configure this function call with sets of function arguments.
 func (funcCall *FunctionCall) AcceptFunctionArgument(funcArg *FunctionArgument) error {
 	funcCall.FunctionArguments = funcArg
 	return nil
 }
 
+// Initialize will prepare this graph with context
 func (funcCall *FunctionCall) Initialize(knowledgeContext *context.KnowledgeContext, ruleCtx *context.RuleContext, dataCtx *context.DataContext) {
 	funcCall.knowledgeContext = knowledgeContext
 	funcCall.ruleCtx = ruleCtx

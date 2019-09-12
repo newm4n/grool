@@ -8,6 +8,7 @@ import (
 	"reflect"
 )
 
+// ExpressionAtom holds an expression atom graph. it can form a mathematical expression, a simple contants, function  all, method call.
 type ExpressionAtom struct {
 	Text                string
 	ExpressionAtomLeft  *ExpressionAtom
@@ -61,6 +62,7 @@ func (exprAtm *ExpressionAtom) Evaluate() (reflect.Value, error) {
 	}
 }
 
+// Initialize will prepare this graph with  contexts
 func (exprAtm *ExpressionAtom) Initialize(knowledgeContext *context.KnowledgeContext, ruleCtx *context.RuleContext, dataCtx *context.DataContext) {
 	exprAtm.knowledgeContext = knowledgeContext
 	exprAtm.ruleCtx = ruleCtx
@@ -87,6 +89,8 @@ func (exprAtm *ExpressionAtom) Initialize(knowledgeContext *context.KnowledgeCon
 	}
 }
 
+// AcceptExpressionAtom will prepare this graph an expression atom. The first invocation to this function will set the
+// left hand value, the second will set the right hand to be evaluated with math operator.
 func (exprAtm *ExpressionAtom) AcceptExpressionAtom(exprAtom *ExpressionAtom) error {
 	if exprAtm.ExpressionAtomLeft == nil {
 		exprAtm.ExpressionAtomLeft = exprAtom
@@ -98,6 +102,7 @@ func (exprAtm *ExpressionAtom) AcceptExpressionAtom(exprAtom *ExpressionAtom) er
 	return nil
 }
 
+// AcceptFunctionCall will prepare this expression atom as a function call
 func (exprAtm *ExpressionAtom) AcceptFunctionCall(funcCall *FunctionCall) error {
 	if exprAtm.FunctionCall != nil {
 		return errors.Errorf("functioncall alredy set")
@@ -106,6 +111,7 @@ func (exprAtm *ExpressionAtom) AcceptFunctionCall(funcCall *FunctionCall) error 
 	return nil
 }
 
+// AcceptMethodCall will prepare this expression atom as a method call.
 func (exprAtm *ExpressionAtom) AcceptMethodCall(methodCall *MethodCall) error {
 	if exprAtm.MethodCall != nil {
 		return errors.Errorf("method call alredy set")
@@ -114,6 +120,7 @@ func (exprAtm *ExpressionAtom) AcceptMethodCall(methodCall *MethodCall) error {
 	return nil
 }
 
+// AcceptVariable will prepare this expression atom as a variable.
 func (exprAtm *ExpressionAtom) AcceptVariable(name string) error {
 	if exprAtm.Variable == "" {
 		exprAtm.Variable = name
@@ -122,6 +129,7 @@ func (exprAtm *ExpressionAtom) AcceptVariable(name string) error {
 	return errors.Errorf("variable already defined")
 }
 
+// AcceptConstant will prepare this expression as a constant.
 func (exprAtm *ExpressionAtom) AcceptConstant(cons *Constant) error {
 	if exprAtm.Constant == nil {
 		exprAtm.Constant = cons

@@ -12,6 +12,8 @@ const (
 	TimeTypeString = "time.Time"
 )
 
+// Predicate holds the left and right Expression Atom graph. And apply comparisson operator from both
+// expression atom result.
 type Predicate struct {
 	ExpressionAtomLeft  *ExpressionAtom
 	ExpressionAtomRight *ExpressionAtom
@@ -21,6 +23,7 @@ type Predicate struct {
 	dataCtx             *context.DataContext
 }
 
+// Initialize initialize this graph with context
 func (prdct *Predicate) Initialize(knowledgeContext *context.KnowledgeContext, ruleCtx *context.RuleContext, dataCtx *context.DataContext) {
 	prdct.knowledgeContext = knowledgeContext
 	prdct.ruleCtx = ruleCtx
@@ -34,6 +37,8 @@ func (prdct *Predicate) Initialize(knowledgeContext *context.KnowledgeContext, r
 	}
 }
 
+// AcceptExpressionAtom configure this graph with left and right side of expression atom. The first call
+// to this function will set the left hand side and the second call will set the right.
 func (prdct *Predicate) AcceptExpressionAtom(exprAtom *ExpressionAtom) error {
 	if prdct.ExpressionAtomLeft == nil {
 		prdct.ExpressionAtomLeft = exprAtom

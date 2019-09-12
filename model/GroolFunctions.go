@@ -63,42 +63,52 @@ func (gf *GroolFunctions) IsZero(i interface{}) bool {
 	}
 }
 
+// Retract will retract a rule from next evaluation cycle.
 func (gf *GroolFunctions) Retract(ruleName string) {
 	gf.Knowledge.Retract(strings.ReplaceAll(ruleName, "\"", ""))
 }
 
+// GetTimeYear will get the year value of time
 func (gf *GroolFunctions) GetTimeYear(time time.Time) int {
 	return time.Year()
 }
 
+// GetTimeMonth will get the month value of time
 func (gf *GroolFunctions) GetTimeMonth(time time.Time) int {
 	return int(time.Month())
 }
 
+// GetTimeDay will get the day value of time
 func (gf *GroolFunctions) GetTimeDay(time time.Time) int {
 	return time.Day()
 }
 
+// GetTimeHour will get the hour value of time
 func (gf *GroolFunctions) GetTimeHour(time time.Time) int {
 	return time.Hour()
 }
 
+// GetTimeMinute will get the minute value of time
 func (gf *GroolFunctions) GetTimeMinute(time time.Time) int {
 	return time.Minute()
 }
 
+// GetTimeSecond will get the second value of time
 func (gf *GroolFunctions) GetTimeSecond(time time.Time) int {
 	return time.Second()
 }
 
+// IsTimeBefore will check if the 1st argument is before the 2nd argument.
 func (gf *GroolFunctions) IsTimeBefore(time, before time.Time) bool {
 	return time.Before(before)
 }
 
+// IsTimeAfter will check if the 1st argument is after the 2nd argument.
 func (gf *GroolFunctions) IsTimeAfter(time, before time.Time) bool {
 	return time.After(before)
 }
 
+// TimeFormat will format a time according to format layout.
 func (gf *GroolFunctions) TimeFormat(time time.Time, layout string) string {
 	return time.Format(layout)
 }

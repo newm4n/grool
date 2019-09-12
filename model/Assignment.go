@@ -8,6 +8,7 @@ import (
 	"reflect"
 )
 
+// Assignment contains a simple assignment, where rule can assign some result from an expression into variable.
 type Assignment struct {
 	Variable         string
 	Expression       *Expression
@@ -16,6 +17,7 @@ type Assignment struct {
 	dataCtx          *context.DataContext
 }
 
+// Initialize will prepare this graph with contexts.
 func (assign *Assignment) Initialize(knowledgeContext *context.KnowledgeContext, ruleCtx *context.RuleContext, dataCtx *context.DataContext) {
 	assign.knowledgeContext = knowledgeContext
 	assign.ruleCtx = ruleCtx
@@ -26,6 +28,7 @@ func (assign *Assignment) Initialize(knowledgeContext *context.KnowledgeContext,
 	}
 }
 
+// AcceptExpression initialize this assignment with some expression
 func (assign *Assignment) AcceptExpression(expression *Expression) error {
 	if assign.Expression != nil {
 		return fmt.Errorf("expression were set twice in assignment")
@@ -34,6 +37,7 @@ func (assign *Assignment) AcceptExpression(expression *Expression) error {
 	return nil
 }
 
+// AcceptVariable initialize this assignment with a variable name
 func (assign *Assignment) AcceptVariable(name string) error {
 	if assign.Variable == "" {
 		assign.Variable = name

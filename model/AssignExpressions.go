@@ -6,6 +6,7 @@ import (
 	"reflect"
 )
 
+// AssignExpressions contains list of assignment expression in the "then" scope.
 type AssignExpressions struct {
 	ExpressionList   []*AssignExpression
 	knowledgeContext *context.KnowledgeContext
@@ -13,6 +14,7 @@ type AssignExpressions struct {
 	dataCtx          *context.DataContext
 }
 
+// Initialize will initialize this graph with context.
 func (ae *AssignExpressions) Initialize(knowledgeContext *context.KnowledgeContext, ruleCtx *context.RuleContext, dataCtx *context.DataContext) {
 	ae.knowledgeContext = knowledgeContext
 	ae.ruleCtx = ruleCtx

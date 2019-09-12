@@ -6,6 +6,7 @@ import (
 	"reflect"
 )
 
+// MethodCall defines a graph struct that form a method call. It holds the method name to call and the arguments.
 type MethodCall struct {
 	MethodName       string
 	MethodArguments  *FunctionArgument
@@ -14,6 +15,7 @@ type MethodCall struct {
 	dataCtx          *context.DataContext
 }
 
+// Initialize will initialize this graph with context.
 func (methCall *MethodCall) Initialize(knowledgeContext *context.KnowledgeContext, ruleCtx *context.RuleContext, dataCtx *context.DataContext) {
 	methCall.knowledgeContext = knowledgeContext
 	methCall.ruleCtx = ruleCtx
@@ -24,6 +26,7 @@ func (methCall *MethodCall) Initialize(knowledgeContext *context.KnowledgeContex
 	}
 }
 
+// AcceptFunctionArgument will prepare this graph with the function arguments.
 func (methCall *MethodCall) AcceptFunctionArgument(funcArg *FunctionArgument) error {
 	methCall.MethodArguments = funcArg
 	return nil

@@ -6,6 +6,7 @@ import (
 	"reflect"
 )
 
+// AssignExpression an expression for assignment, used to assign a variable with some function, constants or method  all or simply calling function.
 type AssignExpression struct {
 	Assignment       *Assignment
 	FunctionCall     *FunctionCall
@@ -15,6 +16,7 @@ type AssignExpression struct {
 	dataCtx          *context.DataContext
 }
 
+// Initialize will initiate this graph with context.
 func (ae *AssignExpression) Initialize(knowledgeContext *context.KnowledgeContext, ruleCtx *context.RuleContext, dataCtx *context.DataContext) {
 	ae.knowledgeContext = knowledgeContext
 	ae.ruleCtx = ruleCtx
@@ -33,11 +35,13 @@ func (ae *AssignExpression) Initialize(knowledgeContext *context.KnowledgeContex
 	}
 }
 
+// AcceptFunctionCall prepare this graph for function call.
 func (ae *AssignExpression) AcceptFunctionCall(funcCall *FunctionCall) error {
 	ae.FunctionCall = funcCall
 	return nil
 }
 
+// AcceptMethodCall prepare this graph for method  all
 func (ae *AssignExpression) AcceptMethodCall(methodCall *MethodCall) error {
 	ae.MethodCall = methodCall
 	return nil
