@@ -58,7 +58,7 @@ func (g *Grool) Execute(dataCtx *context.DataContext, knowledge *model.Knowledge
 			can, err := v.CanExecute()
 			if err != nil {
 				log.Errorf("Failed testing condition for rule : %s. Got error %v", v.RuleName, err)
-				return errors.Trace(err)
+				// No longer return error, since unavailability of variable or fact in context might be intentional.
 			}
 			// if can, add into runnable array
 			if can {

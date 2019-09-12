@@ -8,17 +8,29 @@ import (
 	"strings"
 )
 
+var (
+	FactNotFoundError  = errors.New("Fact not found")
+	FactRetractedError = errors.New("Fact is retracted")
+)
+
 // NewDataContext will create a new DataContext instance
 func NewDataContext() *DataContext {
 	return &DataContext{
 		ObjectStore: make(map[string]interface{}),
+		Retracted:   make([]string, 0),
 	}
 }
 
 // DataContext holds all structs instance to be used in rule execution environment.
 type DataContext struct {
 	ObjectStore         map[string]interface{}
+	Retracted           []string
 	VariableChangeCount uint64
+}
+
+// Retract temporary retract a fact from data context, making it unavailable for evaluation or modification.
+func (ctx *DataContext) Retract(key string) {
+	ctx.Retracted = append(ctx.Retracted, key)
 }
 
 // Add will add struct instance into rule execution context
@@ -26,22 +38,43 @@ func (ctx *DataContext) Add(key string, obj interface{}) {
 	ctx.ObjectStore[key] = obj
 }
 
+// IsRestracted checks if a key fact is currently retracted.
+func (ctx *DataContext) IsRestracted(key string) bool {
+	for _, v := range ctx.Retracted {
+		if v == key {
+			return true
+		}
+	}
+	return false
+}
+
+// Reset will un-retract all fact, making them available for evaluation and modification.
+func (ctx *DataContext) Reset() {
+	ctx.Retracted = make([]string, 0)
+}
+
 // ExecMethod will execute instance member variable using the supplied arguments.
 func (ctx *DataContext) ExecMethod(methodName string, args []reflect.Value) (reflect.Value, error) {
 	varArray := strings.Split(methodName, ".")
 	if val, ok := ctx.ObjectStore[varArray[0]]; ok {
-		return traceMethod(val, varArray[1:], args)
+		if !ctx.IsRestracted(varArray[0]) {
+			return traceMethod(val, varArray[1:], args)
+		}
+		return reflect.ValueOf(nil), FactRetractedError
 	}
-	return reflect.ValueOf(nil), errors.Errorf("data context not found '%s'", varArray[0])
+	return reflect.ValueOf(nil), FactNotFoundError
 }
 
 // GetType will extract type information of data in this context.
 func (ctx *DataContext) GetType(variable string) (reflect.Type, error) {
 	varArray := strings.Split(variable, ".")
 	if val, ok := ctx.ObjectStore[varArray[0]]; ok {
-		return traceType(val, varArray[1:])
+		if !ctx.IsRestracted(varArray[0]) {
+			return traceType(val, varArray[1:])
+		}
+		return nil, FactRetractedError
 	}
-	return nil, errors.Errorf("data context not found '%s'", varArray[0])
+	return nil, FactNotFoundError
 }
 
 // GetValue will get member variables Value information.
@@ -49,26 +82,32 @@ func (ctx *DataContext) GetType(variable string) (reflect.Type, error) {
 func (ctx *DataContext) GetValue(variable string) (reflect.Value, error) {
 	varArray := strings.Split(variable, ".")
 	if val, ok := ctx.ObjectStore[varArray[0]]; ok {
-		vval, err := traceValue(val, varArray[1:])
-		if err != nil {
-			fmt.Printf("blah %s = %v\n", variable, vval)
+		if !ctx.IsRestracted(varArray[0]) {
+			vval, err := traceValue(val, varArray[1:])
+			if err != nil {
+				fmt.Printf("blah %s = %v\n", variable, vval)
+			}
+			return vval, err
 		}
-		return vval, err
+		return reflect.ValueOf(nil), FactRetractedError
 	}
-	return reflect.ValueOf(nil), fmt.Errorf("data context not found '%s'", varArray[0])
+	return reflect.ValueOf(nil), FactNotFoundError
 }
 
 // SetValue will set variable value of an object instance in this data context, Used by rule script to set values.
 func (ctx *DataContext) SetValue(variable string, newValue reflect.Value) error {
 	varArray := strings.Split(variable, ".")
 	if val, ok := ctx.ObjectStore[varArray[0]]; ok {
-		err := traceSetValue(val, varArray[1:], newValue)
-		if err == nil {
-			ctx.VariableChangeCount++
+		if !ctx.IsRestracted(varArray[0]) {
+			err := traceSetValue(val, varArray[1:], newValue)
+			if err == nil {
+				ctx.VariableChangeCount++
+			}
+			return err
 		}
-		return err
+		return FactRetractedError
 	}
-	return errors.Errorf("data context not found '%s'", varArray[0])
+	return FactNotFoundError
 }
 
 func traceType(obj interface{}, path []string) (reflect.Type, error) {
