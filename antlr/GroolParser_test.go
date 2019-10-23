@@ -28,6 +28,7 @@ func TestLexer(t *testing.T) {
 			if nt.GetTokenType() == antlr.TokenEOF {
 				break
 			}
+			fmt.Println(nt.GetText())
 		}
 	}
 

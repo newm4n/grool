@@ -39,14 +39,20 @@ func TestMyPoGo_GetStringLength(t *testing.T) {
 	}
 
 	dataContext := context.NewDataContext()
-	dataContext.Add("User", user)
-	dataContext.Add("Pogo", &MyPoGo{})
+	err := dataContext.Add("User", user)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = dataContext.Add("Pogo", &MyPoGo{})
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	//初始化规则引擎
 	knowledgeBase := model.NewKnowledgeBase()
 	ruleBuilder := builder.NewRuleBuilder(knowledgeBase)
 
-	err := ruleBuilder.BuildRuleFromResource(pkg.NewBytesResource([]byte(rule2)))
+	err = ruleBuilder.BuildRuleFromResource(pkg.NewBytesResource([]byte(rule2)))
 	if err != nil {
 		t.Log(err)
 	} else {
@@ -68,14 +74,20 @@ func TestMyPoGo_Compare(t *testing.T) {
 	}
 
 	dataContext := context.NewDataContext()
-	dataContext.Add("User", user)
-	dataContext.Add("Pogo", &MyPoGo{})
+	err := dataContext.Add("User", user)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = dataContext.Add("Pogo", &MyPoGo{})
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	//初始化规则引擎
 	knowledgeBase := model.NewKnowledgeBase()
 	ruleBuilder := builder.NewRuleBuilder(knowledgeBase)
 
-	err := ruleBuilder.BuildRuleFromResource(pkg.NewBytesResource([]byte(rule3)))
+	err = ruleBuilder.BuildRuleFromResource(pkg.NewBytesResource([]byte(rule3)))
 	if err != nil {
 		t.Log(err)
 	} else {

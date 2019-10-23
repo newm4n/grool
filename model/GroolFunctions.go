@@ -104,8 +104,8 @@ func (gf *GroolFunctions) IsTimeBefore(time, before time.Time) bool {
 }
 
 // IsTimeAfter will check if the 1st argument is after the 2nd argument.
-func (gf *GroolFunctions) IsTimeAfter(time, before time.Time) bool {
-	return time.After(before)
+func (gf *GroolFunctions) IsTimeAfter(time, after time.Time) bool {
+	return time.After(after)
 }
 
 // TimeFormat will format a time according to format layout.

@@ -55,6 +55,9 @@ func (ae *AssignExpression) Evaluate() (reflect.Value, error) {
 	if ae.FunctionCall != nil {
 		return ae.FunctionCall.Evaluate()
 	}
-	return reflect.ValueOf(nil), errors.Errorf("no assignment or function call to evaluate")
+	if ae.MethodCall != nil {
+		return ae.MethodCall.Evaluate()
+	}
+	return reflect.ValueOf(nil), errors.Errorf("no assignment, function or method call to evaluate")
 
 }

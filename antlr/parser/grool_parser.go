@@ -62,8 +62,8 @@ var parserATN = []uint16{
 	82, 13, 3, 2, 2, 2, 83, 84, 7, 6, 2, 2, 84, 85, 5, 16, 9, 2, 85, 15, 3,
 	2, 2, 2, 86, 88, 5, 18, 10, 2, 87, 86, 3, 2, 2, 2, 88, 89, 3, 2, 2, 2,
 	89, 87, 3, 2, 2, 2, 89, 90, 3, 2, 2, 2, 90, 17, 3, 2, 2, 2, 91, 92, 5,
-	20, 11, 2, 92, 93, 7, 27, 2, 2, 93, 101, 3, 2, 2, 2, 94, 95, 5, 30, 16,
-	2, 95, 96, 7, 27, 2, 2, 96, 101, 3, 2, 2, 2, 97, 98, 5, 28, 15, 2, 98,
+	20, 11, 2, 92, 93, 7, 27, 2, 2, 93, 101, 3, 2, 2, 2, 94, 95, 5, 28, 15,
+	2, 95, 96, 7, 27, 2, 2, 96, 101, 3, 2, 2, 2, 97, 98, 5, 30, 16, 2, 98,
 	99, 7, 27, 2, 2, 99, 101, 3, 2, 2, 2, 100, 91, 3, 2, 2, 2, 100, 94, 3,
 	2, 2, 2, 100, 97, 3, 2, 2, 2, 101, 19, 3, 2, 2, 2, 102, 103, 5, 36, 19,
 	2, 103, 104, 7, 21, 2, 2, 104, 105, 5, 22, 12, 2, 105, 21, 3, 2, 2, 2,
@@ -1236,16 +1236,6 @@ func (s *AssignExpressionContext) SEMICOLON() antlr.TerminalNode {
 	return s.GetToken(groolParserSEMICOLON, 0)
 }
 
-func (s *AssignExpressionContext) FunctionCall() IFunctionCallContext {
-	var t = s.GetTypedRuleContext(reflect.TypeOf((*IFunctionCallContext)(nil)).Elem(), 0)
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(IFunctionCallContext)
-}
-
 func (s *AssignExpressionContext) MethodCall() IMethodCallContext {
 	var t = s.GetTypedRuleContext(reflect.TypeOf((*IMethodCallContext)(nil)).Elem(), 0)
 
@@ -1254,6 +1244,16 @@ func (s *AssignExpressionContext) MethodCall() IMethodCallContext {
 	}
 
 	return t.(IMethodCallContext)
+}
+
+func (s *AssignExpressionContext) FunctionCall() IFunctionCallContext {
+	var t = s.GetTypedRuleContext(reflect.TypeOf((*IFunctionCallContext)(nil)).Elem(), 0)
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IFunctionCallContext)
 }
 
 func (s *AssignExpressionContext) GetRuleContext() antlr.RuleContext {
@@ -1314,7 +1314,7 @@ func (p *groolParser) AssignExpression() (localctx IAssignExpressionContext) {
 		p.EnterOuterAlt(localctx, 2)
 		{
 			p.SetState(92)
-			p.FunctionCall()
+			p.MethodCall()
 		}
 		{
 			p.SetState(93)
@@ -1325,7 +1325,7 @@ func (p *groolParser) AssignExpression() (localctx IAssignExpressionContext) {
 		p.EnterOuterAlt(localctx, 3)
 		{
 			p.SetState(95)
-			p.MethodCall()
+			p.FunctionCall()
 		}
 		{
 			p.SetState(96)

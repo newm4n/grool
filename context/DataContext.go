@@ -34,8 +34,13 @@ func (ctx *DataContext) Retract(key string) {
 }
 
 // Add will add struct instance into rule execution context
-func (ctx *DataContext) Add(key string, obj interface{}) {
+func (ctx *DataContext) Add(key string, obj interface{}) error {
+	objVal := reflect.ValueOf(obj)
+	if objVal.Kind() != reflect.Ptr && objVal.Elem().Kind() != reflect.Struct {
+		return errors.New(fmt.Sprintf("you can only insert a pointer to struct as fact. objVal = %s", objVal.Kind().String()))
+	}
 	ctx.ObjectStore[key] = obj
+	return nil
 }
 
 // IsRestracted checks if a key fact is currently retracted.

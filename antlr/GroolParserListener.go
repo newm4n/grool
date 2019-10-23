@@ -1,6 +1,7 @@
 package antlr
 
 import (
+	"fmt"
 	"github.com/antlr/antlr4/runtime/Go/antlr"
 	"github.com/golang-collections/collections/stack"
 	"github.com/juju/errors"
@@ -315,6 +316,7 @@ func (s *GroolParserListener) ExitMethodCall(ctx *parser.MethodCallContext) {
 	holder := s.Stack.Peek().(model.MethodCallHolder)
 	err := holder.AcceptMethodCall(methodCall)
 	if err != nil {
+		fmt.Printf("Got error %s\n", err)
 		s.AddError(err)
 	}
 }

@@ -95,12 +95,18 @@ func TestGrool_Execute(t *testing.T) {
 		TotalDistance: 0,
 	}
 	dctx := context.NewDataContext()
-	dctx.Add("TestCar", tc)
-	dctx.Add("DistanceRecord", dr)
+	err := dctx.Add("TestCar", tc)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = dctx.Add("DistanceRecord", dr)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	kb := model.NewKnowledgeBase()
 	rb := builder.NewRuleBuilder(kb)
-	err := rb.BuildRuleFromResource(pkg.NewBytesResource([]byte(rules)))
+	err = rb.BuildRuleFromResource(pkg.NewBytesResource([]byte(rules)))
 	if err != nil {
 		t.Errorf("Got error : %v", err)
 		t.FailNow()

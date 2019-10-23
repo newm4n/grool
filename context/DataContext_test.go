@@ -26,7 +26,10 @@ func TestDataContext_GetType(t *testing.T) {
 	}}}
 
 	ctx := NewDataContext()
-	ctx.Add("ta", TA)
+	err := ctx.Add("ta", TA)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	typ, err := ctx.GetType("ta.BStruct.CStruct.Str")
 	if err != nil {
@@ -45,7 +48,10 @@ func TestDataContext_GetValue(t *testing.T) {
 	}}}
 
 	ctx := NewDataContext()
-	ctx.Add("ta", TA)
+	err := ctx.Add("ta", TA)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	val, err := ctx.GetValue("ta.BStruct.CStruct.Str")
 	if err != nil {
