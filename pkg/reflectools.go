@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	"fmt"
 	"github.com/juju/errors"
 	"github.com/sirupsen/logrus"
 	"reflect"
@@ -29,18 +30,23 @@ func GetFunctionParameterTypes(obj interface{}, methodName string) ([]reflect.Ty
 	ret := make([]reflect.Type, 0)
 	objType := reflect.TypeOf(obj)
 
-	//fmt.Println(objType.String())
+	var meth reflect.Method
+	var found bool
 
-	meth, found := objType.MethodByName(methodName)
+	if objType.String() == "reflect.Value" {
+		val := obj.(reflect.Value)
+		meth, found = val.Type().MethodByName(methodName)
+	} else {
+		meth, found = objType.MethodByName(methodName)
+	}
 	if found {
 		x := meth.Type
 		for i := 1; i < x.NumIn(); i++ {
 			ret = append(ret, x.In(i))
 		}
-	} else {
-		return nil, errors.Errorf("function %s not found", methodName)
+		return ret, nil
 	}
-	return ret, nil
+	return nil, errors.Errorf("function %s not found", methodName)
 }
 
 // GetFunctionReturnTypes get list of return types of specific function in a struct instance
@@ -68,12 +74,23 @@ func InvokeFunction(obj interface{}, methodName string, param []interface{}) ([]
 	if !IsStruct(obj) {
 		return nil, errors.Errorf("param is not a struct")
 	}
-	objVal := reflect.ValueOf(obj)
+	var objVal reflect.Value
+	if reflect.TypeOf(obj).Name() == "Value" {
+		objVal = obj.(reflect.Value)
+	} else {
+		objVal = reflect.ValueOf(obj)
+	}
 	funcVal := objVal.MethodByName(methodName)
+
+	if !funcVal.IsValid() {
+		return nil, errors.New(fmt.Sprintf("invalid function %s", methodName))
+	}
+
 	argVals := make([]reflect.Value, len(param))
 	for idx, val := range param {
 		argVals[idx] = reflect.ValueOf(val)
 	}
+
 	retVals := funcVal.Call(argVals)
 	ret := make([]interface{}, len(retVals))
 	for idx, r := range retVals {

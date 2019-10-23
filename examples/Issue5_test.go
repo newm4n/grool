@@ -51,7 +51,7 @@ func TestMethodCall_Issue5(t *testing.T) {
 	if err != nil {
 		t.Log(err)
 	} else {
-		eng1 := &engine.Grool{MaxCycle: 1}
+		eng1 := &engine.Grool{MaxCycle: 5}
 		err := eng1.Execute(dataContext, knowledgeBase)
 		if err != nil {
 			t.Fatal(err)
