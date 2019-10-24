@@ -10,16 +10,19 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// NewRuleBuilder creates new RuleBuilder instance. This builder will add all loaded rules into the specified knowledgebase.
 func NewRuleBuilder(KnowledgeBase *model.KnowledgeBase) *RuleBuilder {
 	return &RuleBuilder{
 		KnowledgeBase: KnowledgeBase,
 	}
 }
 
+// RuleBuilder builds rule from DRL script into contained KnowledgeBase
 type RuleBuilder struct {
 	KnowledgeBase *model.KnowledgeBase
 }
 
+// MustBuildRuleFromResources is similar to BuildRuleFromResources, with the difference is, it will panic if rule script contains error.
 func (builder *RuleBuilder) MustBuildRuleFromResources(resource []pkg.Resource) {
 	for _, v := range resource {
 		err := builder.BuildRuleFromResource(v)
@@ -29,12 +32,14 @@ func (builder *RuleBuilder) MustBuildRuleFromResources(resource []pkg.Resource) 
 	}
 }
 
+// MustBuildRuleFromResource is similar to BuildRuleFromResource, with the difference is, it will panic if rule script contains error.
 func (builder *RuleBuilder) MustBuildRuleFromResource(resource pkg.Resource) {
 	if err := builder.BuildRuleFromResource(resource); err != nil {
 		panic(err)
 	}
 }
 
+// BuildRuleFromResources will load rules from multiple resources. It will return an error if it encounter an error on the first script it found.
 func (builder *RuleBuilder) BuildRuleFromResources(resource []pkg.Resource) error {
 	for _, v := range resource {
 		err := builder.BuildRuleFromResource(v)
@@ -45,6 +50,7 @@ func (builder *RuleBuilder) BuildRuleFromResources(resource []pkg.Resource) erro
 	return nil
 }
 
+// BuildRuleFromResource will load rules from a single resource. It will return an error if it encounter an error on the specified resource.
 func (builder *RuleBuilder) BuildRuleFromResource(resource pkg.Resource) error {
 	data, err := resource.Load()
 	if err != nil {
