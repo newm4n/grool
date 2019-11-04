@@ -177,7 +177,7 @@ func traceMethod(obj interface{}, path []string, args []reflect.Value) (reflect.
 		iargs := make([]interface{}, 0)
 		for i, t := range types {
 			if t.Kind() != args[i].Kind() {
-				if t.Kind() == reflect.Interface && args[i].Kind() == reflect.Struct {
+				if t.Kind() == reflect.Interface {
 					iargs = append(iargs, pkg.ValueToInterface(args[i]))
 				} else {
 					return reflect.ValueOf(nil),
