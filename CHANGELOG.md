@@ -31,3 +31,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Method invocation and tracer bug
 - Reflectools are now able to detect the object under reflection for its `value` vs `ptr to struct`
+
+### [1.0.2] - TBD
+
+#### Fixed
+
+- Function invocation now check if the argument is an Interface, it should accept any type of argument type values. 
