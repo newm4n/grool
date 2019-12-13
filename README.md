@@ -1,3 +1,10 @@
+**Important Notice**
+
+Grool rule engine has been donated to Hyperjump.tech so now its part of Hyperjump's OSS Family.
+You can visit [grule-rule-engine](https://github.com/hyperjumptech/grule-rule-engine) to continue using this software.
+
+This project is **archived**.
+
 <img src="https://github.com/newm4n/grool/raw/master/gopher-grools.png" alt="drawing" style="width:100px;"/>
 
 __"Gopher Holds The Rules"__
